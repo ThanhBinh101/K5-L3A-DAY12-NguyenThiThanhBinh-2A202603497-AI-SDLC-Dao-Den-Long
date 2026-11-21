@@ -255,6 +255,64 @@ if (version >= 1) {
 }
 
 if (version >= 2) {
+  test('fuel exhaustion preserves history and a five-mote relight grows capacity', t => {
+    const scenario = {
+      ...isolated, ...optionalHazards,
+      player: { pos: [0, 0, 0], carried: 5, successful_lights: 2 },
+      lanterns: [{ id: 'L1', pos: [0, 0, 0], lit: true, fuel: 1 / 60 }],
+    };
+    const { events, snapshots } = run(t, {
+      scenario, ticks: 2, inputs: [{ tick: 1, interact: true }],
+    });
+    assert.deepEqual(events.find(event => event.name === 'lantern_out')?.data, { lantern_id: 'L1' });
+    const extinguished = snapshots[1].lanterns[0];
+    assert.equal(extinguished.lit, false);
+    assert.equal(extinguished.ever_lit, true);
+    assert.equal(extinguished.deposited, 0);
+    assert.deepEqual(events.find(event => event.name === 'lantern_lit')?.data, {
+      lantern_id: 'L1', relight: true,
+    });
+    const last = snapshots.at(-1);
+    assert.equal(last.lanterns[0].fuel, 100);
+    assert.equal(last.lanterns[0].relit_count, 1);
+    assert.equal(last.player.capacity, 16);
+    assert.equal(last.score, 65);
+  });
+
+  test('a shade drains a weak lantern and emits one event per elapsed second', t => {
+    const scenario = {
+      ...isolated, ...optionalHazards,
+      player: { pos: [0, 0, 0] },
+      shades: [{ id: 'S1', pos: [0.5, 0, 10], state: 'drain', target_lantern_id: 'L1' }],
+      lanterns: [{ id: 'L1', pos: [0, 0, 10], lit: true, fuel: 20 }],
+    };
+    const { events, snapshots } = run(t, { scenario, ticks: 60, snapshotEvery: 30 });
+    assert.equal(snapshots.at(-1).lanterns[0].fuel, 14);
+    assert.equal(events.filter(event => event.name === 'fuel_drain').length, 1);
+  });
+
+  test('dawn uses the lit threshold and no-flames takes priority', t => {
+    const scenario = {
+      ...isolated, ...optionalHazards,
+      player: { pos: [0, 0, 0], flames: 3 },
+      time_left_s: 1 / 60,
+    };
+    const litLanterns = Array.from({ length: 3 }, (_, index) => ({
+      id: `L${index + 1}`, lit: true, fuel: 40,
+    }));
+    const qualified = run(t, { scenario: { ...scenario, lanterns: litLanterns } });
+    assert.equal(qualified.end.state, 'won');
+    assert.equal(qualified.end.score, 3 * (50 + 39) + 3 * 50);
+    assert.equal(qualified.events.at(-1).data.reason, 'dawn_survived');
+    const failed = run(t, { scenario: { ...scenario, lanterns: litLanterns.slice(0, 2) } });
+    assert.equal(failed.end.state, 'lost');
+    const priority = run(t, {
+      scenario: { ...scenario, lanterns: litLanterns, player: { ...scenario.player, flames: 0 } },
+    });
+    assert.equal(priority.end.state, 'lost');
+    assert.equal(priority.events.at(-1).data.reason, 'no_flames');
+  });
+
   test('fuel and capacity appear in v1.2; Night 1 starts with a four-minute budget', t => {
     const { snapshots } = run(t);
     const snapshot = snapshots[0];

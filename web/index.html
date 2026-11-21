@@ -20,6 +20,7 @@
     <section class="game" aria-label="Game Đảo Đèn Lồng">
       <canvas id="world" aria-label="Thế giới 3D góc nhìn thứ ba của Mây"></canvas>
       <div class="hud" id="hud" hidden>
+        <div id="lamp-fuel-bars" class="lamp-fuel-bars" aria-label="Nhiên liệu đèn lồng"></div>
         <div id="objective-arrow" class="objective-arrow" aria-label="Hướng tới đèn chưa thắp gần nhất" hidden>➜</div>
         <div class="meters">
           <div class="stat">
@@ -58,6 +59,7 @@
             <legend>Tùy chọn</legend>
             <label>Âm lượng <input id="volume" type="range" min="0" max="100" value="55"></label>
             <label>Độ nhạy chuột <input id="sensitivity" type="range" min="10" max="70" value="32"></label>
+            <label>Chế độ phân biệt màu <input id="colorblind" type="checkbox"></label>
           </fieldset>
           <div class="panel-actions">
             <button class="action" type="button" id="start">Bắt đầu chơi →</button>

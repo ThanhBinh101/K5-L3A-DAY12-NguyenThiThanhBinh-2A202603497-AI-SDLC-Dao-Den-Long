@@ -9,3 +9,5 @@
 - Tài liệu, asset và minh chứng phải khớp mã. Không dùng lại minh chứng cũ để chứng minh hành vi đã đổi.
 
 Từ v1.1, giữ tick gameplay tách riêng tick input. Đối chiếu thứ tự tick và tọa độ bản đồ trong Ticket-02 trước khi sửa.
+
+Từ v1.2, bảo toàn nhiên liệu bằng số nguyên (1 đơn vị = 60 phần), cập nhật test và ADR khi đổi điều kiện bình minh.

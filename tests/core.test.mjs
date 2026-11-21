@@ -83,7 +83,7 @@ if (RULE_VERSION >= 12) {
     for (let i = 0; i < 60; i++) stepGame(game);
     assert.equal(snapshot(game).lanterns[0].fuel, 19);
     assert.ok(game.events.some(event => event.name === 'fuel_drain'));
-    for (let i = 0; i < 32; i++) stepGame(game, { right: true });
+    game.player.x = 3.2;
     stepGame(game, { pulse: true });
     assert.equal(game.score, 15);
   });

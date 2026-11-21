@@ -7,7 +7,7 @@ const palette = Object.fromEntries(Object.entries({
   lilac: '#ab91c0', mint: '#93c6aa', moss: '#659d8a', ocean: '#12384A',
   stone: '#ce98af', deepStone: '#a77899', shadow: '#764764',
   gold: '#F2C14E', amber: '#e58b68', ember: '#984c5e', violet: '#745e8f',
-  leaf: '#78bba8', white: '#F5F1E6', light: '#FFF6C2', moteHalo: '#FFE58A', litPaper: '#FFB347', litCore: '#FFE9B0', offPaper: '#5B5F6E', sky: '#0E1430', fog: '#1B2350', wood: '#6B4A2F', shade: '#120A1A', outline: '#7A3CFF', stunned: '#3A3450', coat: '#E8E2D0', scarf: '#C8102E', drifter: '#8FA3B8', danger: '#FF5A5F',
+  leaf: '#78bba8', white: '#F5F1E6', light: '#FFF6C2', moteHalo: '#FFE58A', litPaper: '#FFB347', litCore: '#FFE9B0', offPaper: '#5B5F6E', sky: '#0E1430', fog: '#1B2350', wood: '#6B4A2F', shade: '#120A1A', outline: '#7A3CFF', stunned: '#3A3450', coat: '#E8E2D0', scarf: '#C8102E', drifter: '#8FA3B8', danger: '#FF5A5F', colorOutline: '#00B3FF', dawn: '#E987A6', dawnHorizon: '#F9AF91',
 }).map(([name, hex]) => {
   const rgb = [1, 3, 5].map((start) => parseInt(hex.slice(start, start + 2), 16) / 255);
   return [name, [...rgb, 1]];
@@ -246,29 +246,41 @@ export function createWorld(canvas) {
     const paper = lit ? p.litPaper : p.offPaper;
     const halo = lit ? p.litPaper : p.drifter;
     const band = lit ? p.amber : p.raspberry;
-    const pulse = .93 + .07*Math.sin(time*2.3);
+    const brightness = (item.fuel ?? 100) / 100;
+    const pulse = .63 + .31*brightness + .06*Math.sin(time*2.3);
+    const scale = lit ? 1 : .8;
+    function lampPart(draw, px,py,pz,sx,sy,sz,color,detail,shape) {
+      draw(x+(px-x)*scale,base+(py-base)*scale,z+(pz-z)*scale,sx*scale,sy*scale,sz*scale,color,detail,shape);
+    }
+    const round = (...values) => lampPart(ellipsoid,...values);
+    const bands = (...values) => lampPart(cyl,...values);
     floor(disk,x,base+.021,z,1.34,1.34,alpha(halo,.36),{glow:1});
     floor(loop,x,base+.027,z,1.53,1.53,alpha(halo,lit ? .84 : .66),{glow:1});
     shadow(x,z,.80,.60,base);
-    cyl(x,base+.13,z,.57,.14,.57,metal,{},stand);
-    cyl(x,base+.27,z,.43,.09,.43,band,{},stand);
-    cyl(x,base+.45,z,.20,.19,.20,metal,{},stem);
-    cyl(x,base+.66,z,.48,.07,.48,band,{},stand);
-    ellipsoid(x,base+1.12,z,.49,.54,.49,paper,{glow:lit ? pulse : .28});
+    bands(x,base+.13,z,.57,.14,.57,metal,{},stand);
+    bands(x,base+.27,z,.43,.09,.43,band,{},stand);
+    bands(x,base+.45,z,.20,.19,.20,metal,{},stem);
+    bands(x,base+.66,z,.48,.07,.48,band,{},stand);
+    round(x,base+1.12,z,.49,.54,.49,paper,{glow:lit ? pulse : .28});
     for (let side = 0; side < 8; side++) {
       const angle = side*radians/8;
       const radius = .467;
-      cyl(x+Math.cos(angle)*radius,base+1.12,z+Math.sin(angle)*radius,.024,.35,.024,band,{glow:lit ? .42 : .03},stem);
+      bands(x+Math.cos(angle)*radius,base+1.12,z+Math.sin(angle)*radius,.024,.35,.024,band,{glow:lit ? .42 : .03},stem);
     }
-    cyl(x,base+1.63,z,.52,.07,.52,metal,{},stand);
-    cyl(x,base+1.77,z,.57,.13,.57,band,{},stand);
-    cyl(x,base+1.92,z,.23,.11,.23,metal,{},stand);
-    ellipsoid(x,base+2.05,z,.115,.13,.115,lit ? p.litCore : p.offPaper,{glow:lit ? 1 : .31},bud);
-    if (!lit) return;
-    ellipsoid(x,base+1.17,z,.69,.62,.69,alpha(p.litCore,.18),{glow:1},bud);
+    bands(x,base+1.63,z,.52,.07,.52,metal,{},stand);
+    bands(x,base+1.77,z,.57,.13,.57,band,{},stand);
+    bands(x,base+1.92,z,.23,.11,.23,metal,{},stand);
+    round(x,base+2.05,z,.115,.13,.115,lit ? p.litCore : p.offPaper,{glow:lit ? 1 : .31},bud);
+    if (!lit) {
+      for (const [dx, dz, roll] of [[-.17,.393,.27],[.26,.38,-.37],[.38,-.24,.20],[-.34,-.28,-.32]]) {
+        bands(x+dx,base+.94,z+dz,.038,.185,.035,p.shade,{roll,glow:.64},diamond);
+      }
+      return;
+    }
+    round(x,base+1.17,z,.69,.62,.69,alpha(p.litCore,.07+.14*brightness),{glow:1},bud);
     for (let i = 0; i < 5; i++) {
       const orbit = time*.71 + i*radians/5;
-      ellipsoid(x+Math.cos(orbit)*(.57+i*.09), base+.96+i*.35+Math.sin(orbit*2)*.17,z+Math.sin(orbit)*(.57+i*.09),
+      round(x+Math.cos(orbit)*(.57+i*.09), base+.96+i*.35+Math.sin(orbit*2)*.17,z+Math.sin(orbit)*(.57+i*.09),
         .041,.051,.041,p.light,{glow:1},bud);
     }
   }
@@ -287,22 +299,23 @@ export function createWorld(canvas) {
     ellipsoid(x+.21*Math.cos(phase),h-.14,z+.21*Math.sin(phase),.035,.035,.035,p.cream,{glow:1},bud);
   }
 
-  function shade(item, time, index) {
+  function shade(item, time, index, colorblind) {
     const x = item.x;
     const z = coordinate(item);
     const base = item.y ?? 0;
     const y = base + Math.sin(time*3.7+index)*.105;
     const stunned = item.state === 'stunned' || (item.stunnedTicks ?? item.stunned_ticks ?? item.stun ?? 0) > 0;
     const color = stunned ? p.stunned : p.shade;
+    const edge = colorblind ? p.colorOutline : p.outline;
     shadow(x,z,.7,.52,base);
-    floor(loop,x,base+.022,z,.83,.83,alpha(p.outline,.72),{glow:1});
-    ellipsoid(x,.63+y,z,.60,.45,.52,p.outline,{glow:.95});
+    floor(loop,x,base+.022,z,.83,.83,alpha(edge,.72),{glow:1});
+    ellipsoid(x,.63+y,z,.60,.45,.52,edge,{glow:.95});
     ellipsoid(x,.68+y,z+.027,.57,.40,.49,color,{glow:.55});
     ellipsoid(x,.47+y,z+.04,.51,.30,.42,color);
     ellipsoid(x-.30,1.03+y,z-.05,.17,.34,.145,color,{roll:.33},bud);
     ellipsoid(x+.30,1.03+y,z-.05,.17,.34,.145,color,{roll:-.33},bud);
-    ellipsoid(x-.17,.74+y,z+.435,.08,.055,.035,stunned ? p.drifter : p.outline,{glow:1},bud);
-    ellipsoid(x+.17,.74+y,z+.435,.08,.055,.035,stunned ? p.drifter : p.outline,{glow:1},bud);
+    ellipsoid(x-.17,.74+y,z+.435,.08,.055,.035,stunned ? p.drifter : edge,{glow:1},bud);
+    ellipsoid(x+.17,.74+y,z+.435,.08,.055,.035,stunned ? p.drifter : edge,{glow:1},bud);
     for (let i = 0; i < 7; i++) {
       const wave = time*1.8 + i*radians/7;
       const distance = .57+(i%3)*.12;
@@ -412,7 +425,7 @@ export function createWorld(canvas) {
       if (!item.collected) firefly(item,time,index);
     }
     for (const [index,enemy] of (state.enemies ?? (state.enemy ? [state.enemy] : [])).entries()) {
-      if (enemy.active !== false) shade(enemy,time,index);
+      if (enemy.active !== false) shade(enemy,time,index,options.colorblind);
     }
 
     hero(player,time,yaw);
@@ -424,7 +437,9 @@ export function createWorld(canvas) {
     }
     const lit = state.lanterns?.filter((item) => item.lit).length ?? 0;
     const ambient = .15 + .55 * lit / Math.max(1,state.lanterns?.length ?? 0);
-    const style = { sky:p.sky.slice(0,3), horizon:p.fog.slice(0,3), sun:p.litCore.slice(0,3), fog:p.fog.slice(0,3), wave:p.drifter.slice(0,3), ambient };
+    const dawn = state.timeLeft === 0 && ['won','lost'].includes(state.mode);
+    const style = { sky:(dawn ? p.dawn : p.sky).slice(0,3), horizon:(dawn ? p.dawnHorizon : p.fog).slice(0,3),
+      sun:p.litCore.slice(0,3), fog:(dawn ? p.dawnHorizon : p.fog).slice(0,3), wave:p.drifter.slice(0,3), ambient: dawn ? .65 : ambient };
     renderer.render(options.camera?.eye ?? eye, options.camera?.target ?? target, time, style);
   }
 

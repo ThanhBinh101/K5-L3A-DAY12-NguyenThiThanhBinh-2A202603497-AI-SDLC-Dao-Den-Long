@@ -106,3 +106,16 @@ kbd { border: 1px solid #ead6e5; box-shadow: 0 2px 0 #ead6e5; min-width: 24px; t
   .cooldowns strong { min-width: 0; }
   .cooldowns kbd { min-width: 12px; }
 }
+
+.lamp-fuel-bars { position: absolute; inset: 0; }
+.fuel-meter { position: absolute; width: clamp(42px, 5vw, 76px); transform: translate(-50%, -50%); background: #0e1430ef; color: #f5f1e6; border: 1px solid #b19ab6; border-radius: 999px; padding: 3px; height: 11px; }
+.fuel-meter::before { content: ""; display: block; height: 100%; width: var(--fuel); border-radius: inherit; background: #ffb347; }
+.fuel-meter.fuel-low { border-color: #ff5a5f; animation: fuel-blink 1s infinite step-end; }
+.fuel-meter.fuel-low::before { background: #ff5a5f; }
+@keyframes fuel-blink { 50% { opacity: .36; } }
+.colorblind .fuel-meter.fuel-low { border-color: #fff; }
+.colorblind .fuel-meter.fuel-low::before { background: #fff; }
+.colorblind .fuel-meter.fuel-low::after { content: '⚠'; position: absolute; right: -20px; top: -9px; color: #fff; }
+.colorblind .timer.urgent strong { color: #fff; background: #18172b; border-radius: 4px; padding-inline: 3px; }
+.colorblind .timer.urgent strong::before { content: '⚠ '; }
+#mote-slots { max-width: 200px; flex-wrap: wrap; justify-content: center; }

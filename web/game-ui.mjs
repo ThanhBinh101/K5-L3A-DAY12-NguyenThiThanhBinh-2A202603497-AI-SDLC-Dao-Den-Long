@@ -1,4 +1,4 @@
-import { createGame, nearestLantern, STEP_MS, stepGame } from '../src/game.mjs';
+import { capacity, createGame, nearestLantern, STEP_MS, stepGame } from '../src/game.mjs';
 import { createWorld } from './world.mjs';
 
 const get = (id) => document.getElementById(id);
@@ -25,6 +25,8 @@ const settingsFields = get('settings-fields');
 const volume = get('volume');
 const sensitivity = get('sensitivity');
 const objectiveArrow = get('objective-arrow');
+const fuelHud = get('lamp-fuel-bars');
+const colorblind = get('colorblind');
 const dashCooldown = get('dash-cooldown');
 const pulseCooldown = get('pulse-cooldown');
 const movement = new Map([
@@ -48,7 +50,7 @@ let night = 1;
 let game = createGame({night});
 let screen = 'menu';
 let previousScreen = 'menu';
-let settings = {volume:55, sensitivity:32};
+let settings = {volume:55, sensitivity:32, colorblind:false};
 try {
   settings = { ...settings, ...JSON.parse(localStorage.getItem('dao-den-long-settings') ?? '{}') };
 } catch {
@@ -56,6 +58,8 @@ try {
 }
 volume.value = settings.volume;
 sensitivity.value = settings.sensitivity;
+colorblind.checked = settings.colorblind;
+document.body.classList.toggle('colorblind', settings.colorblind);
 let camYaw = 0;
 let lastMouseX = null;
 let finalBeep = Infinity;
@@ -69,8 +73,8 @@ let musicBar = -1;
 const nightTunes = [[196,293.66,392,293.66], [220,329.63,440,329.63], [174.61,261.63,349.23,261.63]];
 const nightNames = ['Lời gọi đom đóm', 'Cầu Gió', 'Tháp Sương'];
 const nightIntroductions = [
-  'Ông Đăng: Mây ơi, đi theo đom đóm và mang ánh sáng trở lại từng chiếc đèn.',
-  'Ông Đăng: Qua cầu, cẩn thận luồng gió và dùng bệ phóng để vượt khoảng trống.',
+  'Ông Đăng: Mây ơi, gom đom đóm rồi giữ ít nhất 60% đèn sáng tới bình minh.',
+  'Ông Đăng: Qua cầu và dùng bệ phóng để vượt khoảng trống. Hãy để dành đom đóm tiếp nhiên liệu.',
   'Ông Đăng: Dùng các dốc và bệ phóng để đến Tháp Sương. Hãy giữ lấy ánh sáng!',
 ];
 
@@ -116,9 +120,10 @@ sound.addEventListener('click', () => {
   sound.setAttribute('aria-pressed', soundOn);
   unlockAudio();
 });
-for (const input of [volume,sensitivity]) {
+for (const input of [volume,sensitivity,colorblind]) {
   input.addEventListener('input', () => {
-    settings[input.id] = Number(input.value);
+    settings[input.id] = input.type === 'checkbox' ? input.checked : Number(input.value);
+    document.body.classList.toggle('colorblind', settings.colorblind);
     try { localStorage.setItem('dao-den-long-settings',JSON.stringify(settings)); } catch { /* private storage */ }
   });
 }
@@ -156,8 +161,9 @@ function renderScreen() {
     body.textContent = 'Thay đổi có hiệu lực ngay trên thiết bị này.';
     start.textContent = 'Quay lại';
   } else if (screen === 'result') {
-    title.textContent = won() ? (night === 3 ? 'Đảo đã sáng!' : 'Đêm đã sáng!') : 'Sương phủ kín';
-    body.textContent = won() ? `Mây mang về ${game.score ?? 0} điểm ở Đêm ${night}.` : 'Thử một đường khác để gom đom đóm và tránh Bóng Mực.';
+    title.textContent = won() ? 'Đón bình minh!' : 'Sương phủ kín';
+    const litCount = game.lanterns.filter(lamp => lamp.lit).length;
+    body.textContent = `Đêm ${night}: ${litCount}/${game.lanterns.length} đèn còn sáng · ${game.score ?? 0} điểm.`;
     start.textContent = won() && night < 3 ? 'Đêm tiếp theo →' : 'Chơi lại →';
   }
   if (overlayActive) start.focus({preventScroll: true});
@@ -172,6 +178,7 @@ function enterNight(number) {
   musicBar = -1;
   finalBeep = Infinity;
   camYaw = 0;
+  fuelHud.replaceChildren();
   announcement.textContent = '';
   resetInputs();
   screen = 'intro';
@@ -289,7 +296,7 @@ function syncHud() {
   const flames = model.flames ?? model.health ?? 0;
   const maxFlames = game.maxFlames ?? game.maxHealth ?? 3;
   const carried = model.carried ?? model.fireflies ?? 0;
-  const capacity = model.capacity ?? game.capacity ?? 10;
+  const limit = capacity(game);
   const heartLabel = `${flames} trên ${maxFlames} Lửa Tim`;
   if (health.getAttribute('aria-label') !== heartLabel) {
     health.setAttribute('aria-label', heartLabel);
@@ -301,10 +308,10 @@ function syncHud() {
       return flame;
     }));
   }
-  const inventoryLabel = `${carried} / ${capacity}`;
+  const inventoryLabel = `${carried} / ${limit}`;
   if (fireflies.textContent !== inventoryLabel || !slots.children.length) {
     setText(fireflies, inventoryLabel);
-    slots.replaceChildren(...Array.from({ length: capacity }, (_, index) => {
+    slots.replaceChildren(...Array.from({ length: limit }, (_, index) => {
       const slot = document.createElement('span');
       slot.className = index < carried ? 'mote full' : 'mote';
       return slot;
@@ -325,9 +332,11 @@ function syncHud() {
   const near = nearestLantern(game);
   const required = near?.required ?? near?.cost ?? near?.need ?? 0;
   const deposited = near?.deposited ?? near?.motes ?? 0;
-  if (near && carried) setText(hint, `E · Nạp đèn (${deposited}/${required})`);
+  if (near?.lit && carried) setText(hint, `E · Tiếp nhiên liệu (${Math.floor(near.fuel)}/100)`);
+  else if (near?.lit) setText(hint, `Đèn còn ${Math.floor(near.fuel)}/100 nhiên liệu. Hãy nhặt thêm đom đóm.`);
+  else if (near && carried) setText(hint, `E · ${near.ever_lit ? 'Thắp lại' : 'Nạp đèn'} (${deposited}/${required})`);
   else if (near) setText(hint, `Đèn đã nhận ${deposited}/${required} đom đóm. Hãy nhặt thêm.`);
-  else setText(hint, 'Gom đom đóm rồi mang đến Đèn Lồng Lớn.');
+  else setText(hint, `Giữ ${Math.ceil(game.lanterns.length*.6)} đèn trở lên sáng tới bình minh.`);
 
   for (const event of game.events.slice(eventCount)) {
     const name = event.name ?? event.kind;
@@ -352,6 +361,32 @@ function syncObjective() {
   objectiveArrow.style.transform = `translate(-50%,-50%) rotate(${Math.atan2(y,x)}rad)`;
 }
 
+function syncFuel() {
+  fuelHud.hidden = screen !== 'play';
+  if (fuelHud.hidden) return;
+  for (const lamp of game.lanterns) {
+    let marker = fuelHud.querySelector(`[data-lamp="${lamp.id}"]`);
+    if (!marker) {
+      marker = document.createElement('div');
+      marker.className = 'fuel-meter';
+      marker.dataset.lamp = lamp.id;
+      marker.setAttribute('role','meter');
+      marker.setAttribute('aria-valuemin','0');
+      marker.setAttribute('aria-valuemax','100');
+      marker.setAttribute('aria-label', `Nhiên liệu đèn ${lamp.id}`);
+      fuelHud.append(marker);
+    }
+    const position = world.project(lamp.x,lamp.y+2.35,lamp.z);
+    marker.hidden = !lamp.lit || !position?.visible;
+    if (marker.hidden) continue;
+    marker.style.left = `${50+position.x*50}%`;
+    marker.style.top = `${50+position.y*50}%`;
+    marker.style.setProperty('--fuel', `${lamp.fuel}%`);
+    marker.classList.toggle('fuel-low', lamp.fuel < 30);
+    marker.setAttribute('aria-valuenow', String(Math.floor(lamp.fuel)));
+  }
+}
+
 function frame(now) {
   if (screen === 'play') {
     carry += Math.min(now - lastFrame, 100);
@@ -370,8 +405,9 @@ function frame(now) {
     if (ended()) endRound();
   }
   lastFrame = now;
-  world.render({ ...game, cam_yaw_deg:camYaw }, now);
+  world.render({ ...game, cam_yaw_deg:camYaw }, now, { colorblind:settings.colorblind });
   syncObjective();
+  syncFuel();
   requestAnimationFrame(frame);
 }
 

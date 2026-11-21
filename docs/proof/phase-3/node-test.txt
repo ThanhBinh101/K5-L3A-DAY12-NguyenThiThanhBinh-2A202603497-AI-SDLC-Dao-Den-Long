@@ -1,0 +1,30 @@
+✔ file-based headless emits deterministic JSONL with an end record (105.841209ms)
+✔ camera-relative movement persists and is independent of snapshot cadence (118.8515ms)
+✔ scenario pickup and partial deposit produce the required event payloads (43.726125ms)
+✔ the final lantern follows the versioned victory rule (102.847167ms)
+✔ malformed flags fail with contract exit code 2 (50.542375ms)
+✔ pause advances wall ticks while holding simulation counters steady (47.714ms)
+✔ Night 2 launch pad launches a grounded player toward the other island (73.484125ms)
+✔ Night 3 enabled wind activates repeatably and disabling it isolates motion (179.51475ms)
+✔ on hit only half the carried motes drop and immunity prevents immediate damage (39.181833ms)
+✔ published night layouts and v1.1 snapshot fields are present (267.447875ms)
+✔ fuel exhaustion preserves history and a five-mote relight grows capacity (125.777375ms)
+✔ a shade drains a weak lantern and emits one event per elapsed second (98.307959ms)
+✔ dawn uses the lit threshold and no-flames takes priority (1338.6025ms)
+✔ fuel and capacity appear in v1.2; Night 1 starts with a four-minute budget (133.512333ms)
+✔ jump starts from ground and lands again (3.969875ms)
+✔ pulse costs three motes, pushes four metres over 15 ticks and does not repeat on hold (0.989291ms)
+✔ enemy contact costs one flame, drops half and starts invulnerability (0.774167ms)
+✔ dash travels 2.8m over 12 ticks and holding the button never retriggers (0.706083ms)
+✔ fall ignores invulnerability and respawn restores canonical start after 60 ticks (0.284917ms)
+✔ a wind charm refreshes the timer and a drifter steals without taking a flame (0.159625ms)
+✔ lantern expires at zero and relights for five, growing carrying capacity (0.706334ms)
+✔ shade drain plus decay consumes one extra five per second and awards stun bonus (1.378708ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2831.678583

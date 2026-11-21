@@ -1,6 +1,6 @@
 # Đảo Đèn Lồng
 
-Game 3D của Day 12 AI SDLC. Mây đội nón lá có đèn nhỏ, gom đom đóm và mang ánh sáng trở về Đảo Bến, Đảo Cau và Đảo Chuông. Xem [yêu cầu Phase 1](docs/phase-1.md) · [yêu cầu Phase 2](docs/phase-2.md).
+Game 3D của Day 12 AI SDLC. Mây đội nón lá có đèn nhỏ, gom đom đóm và mang ánh sáng trở về Đảo Bến, Đảo Cau và Đảo Chuông. Xem [yêu cầu Phase 1](docs/phase-1.md) · [yêu cầu Phase 2](docs/phase-2.md) · [yêu cầu Phase 3](docs/phase-3.md).
 
 ## Chạy
 
@@ -23,7 +23,7 @@ Mở http://127.0.0.1:4173 và bấm **Bắt đầu chơi**.
 | Kéo chuột trên cảnh 3D | Xoay camera |
 | R | Chơi lại |
 
-Thắng một đêm khi thắp hết đèn, lần lượt 5, 6 và 7 đèn. Hết thời gian hoặc hết lửa thì thua. Điểm gồm 10 mỗi đom đóm đã nạp, 100 mỗi đèn thắp, 5 mỗi Bóng Mực bị choáng và thưởng thắng 2 mỗi giây nguyên còn lại cùng 50 mỗi Ngọn Lửa còn lại.
+Giữ đèn sáng đến bình minh. Mây cần còn ít nhất một Ngọn Lửa cùng tối thiểu 3/5, 4/6 và 5/7 đèn sáng ở từng đêm. Đèn hao dầu và có thể tắt. Bấm E để nạp hoặc châm dầu. Đèn từng sáng cần năm đom đóm để thắp lại.
 
 ## Kiểm tra
 
