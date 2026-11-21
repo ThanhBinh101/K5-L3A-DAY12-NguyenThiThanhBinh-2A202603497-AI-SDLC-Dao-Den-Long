@@ -83,6 +83,7 @@ function begin() {
   playing = true;
   overlay.hidden = true;
   hud.hidden = false;
+  hint.hidden = false;
   touchControls.hidden = false;
   start.blur();
   syncHud();
@@ -91,6 +92,7 @@ start.addEventListener('click', begin);
 
 function endRound() {
   playing = false;
+  hint.hidden = true;
   touchControls.hidden = true;
   title.textContent = game.mode === 'won' ? 'Đảo đã sáng!' : 'Sương phủ kín';
   body.textContent = game.mode === 'won'
