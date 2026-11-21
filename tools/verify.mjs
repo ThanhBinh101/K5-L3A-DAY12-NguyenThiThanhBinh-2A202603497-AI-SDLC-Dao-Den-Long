@@ -15,7 +15,7 @@ const cmd = (args, options = {}) => {
   if (result.error) throw result.error;
   return result;
 };
-const run = cmd(['--test', 'tests/core.test.mjs', 'tests/contract.test.mjs']);
+const run = cmd(['--test', 'tests/core.test.mjs', 'tests/contract.test.mjs', 'tests/leaderboard.test.mjs']);
 const log = run.stdout + run.stderr;
 process.stdout.write(log);
 await writeFile(join(path, 'node-test.txt'), log);

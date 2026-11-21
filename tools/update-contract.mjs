@@ -7,7 +7,7 @@ const contract = {
   build_cmd: 'node tools/build.mjs',
   run_cmd: 'node tools/serve.mjs',
   headless_cmd: 'node tools/headless.mjs',
-  ...(RULE_VERSION >= 13 ? { bench_cmd: 'node tools/bench.mjs', soak_cmd: 'node tools/soak.mjs' } : {}),
+  ...(RULE_VERSION >= 13 ? { bench_cmd: 'node tools/bench.mjs', soak_cmd: 'node --jitless --max-semi-space-size=1 tools/soak.mjs' } : {}),
   tuning: TUNING,
 };
 writeFileSync(new URL('../game.contract.json', import.meta.url), JSON.stringify(contract, null, 2) + '\n');

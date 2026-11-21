@@ -136,17 +136,27 @@ function countdown(g) {
   for (const charm of g.charms) {
     if (charm.left > 0 && --charm.left === 0) charm.available = true;
   }
-  g.fireflies = g.fireflies.filter(mote => mote.ttl === null || --mote.ttl > 0);
+  let alive = 0;
+  for (const mote of g.fireflies) {
+    if (mote.ttl === null || --mote.ttl > 0) g.fireflies[alive++] = mote;
+  }
+  g.fireflies.length = alive;
   if (RULE_VERSION < 12) return;
-  for (const lamp of g.lanterns.filter(item => item.lit)) {
-    const drains = g.enemies.filter(shade => shade.state === 'drain' && shade.target === lamp.id &&
-      lamp.fuelUnits < lowFuel && distance(shade, lamp) <= 2);
-    lamp.fuelUnits -= 1 + drains.length * 5;
-    const fuel = Math.max(0, Math.round(lamp.fuelUnits / 6) / 10);
-    for (const shade of drains) {
-      if (++shade.drainTicks % 60 === 0) note(g, 'fuel_drain', { lantern_id: lamp.id, shade_id: shade.id, fuel });
+  for (const lamp of g.lanterns) {
+    if (!lamp.lit) continue;
+    let drained = 0;
+    const tickEvents = [];
+    if (lamp.fuelUnits < lowFuel) {
+      for (const shade of g.enemies) {
+        if (shade.state !== 'drain' || shade.target !== lamp.id || distance(shade, lamp) > 2) continue;
+        drained += 5;
+        if (++shade.drainTicks % 60 === 0) tickEvents.push(shade.id);
+      }
     }
-    updateFuel(g, lamp, lamp.fuelUnits);
+    const units = lamp.fuelUnits - 1 - drained;
+    const fuel = Math.max(0, Math.round(units / 6) / 10);
+    for (const shadeId of tickEvents) note(g, 'fuel_drain', { lantern_id: lamp.id, shade_id: shadeId, fuel });
+    updateFuel(g, lamp, units);
   }
 }
 
@@ -255,7 +265,11 @@ function collect(g) {
       note(g, 'mote_picked', { carried: p.fireflies });
     }
   }
-  g.fireflies = g.fireflies.filter(mote => !mote.collected);
+  let remaining = 0;
+  for (const mote of g.fireflies) {
+    if (!mote.collected) g.fireflies[remaining++] = mote;
+  }
+  g.fireflies.length = remaining;
   if (RULE_VERSION < 11) return;
   for (const charm of g.charms) {
     if (charm.available && distance(charm, p) <= 1 && Math.abs(charm.y - p.y) <= 1.5) {
@@ -337,20 +351,37 @@ function pulse(g) {
 }
 
 function moveShade(g, shade, dx, dz, safeLamps) {
-  const next = { x: shade.x + dx, z: shade.z + dz };
-  const ground = terrain(g.night, next.x, next.z);
-  if (!Number.isFinite(ground) || Math.abs(ground + 0.8 - shade.y) > 1.5 ||
-      safeLamps.some(lamp => distance(shade, lamp) >= T.safe_radius - 1e-7 && distance(next, lamp) < T.safe_radius - 1e-7)) return;
-  shade.x = next.x;
-  shade.z = next.z;
+  const x = shade.x + dx;
+  const z = shade.z + dz;
+  const ground = terrain(g.night, x, z);
+  if (!Number.isFinite(ground) || Math.abs(ground + 0.8 - shade.y) > 1.5) return;
+  for (const lamp of safeLamps) {
+    if (distance(shade, lamp) >= T.safe_radius - 1e-7 &&
+        Math.hypot(x - lamp.x, z - lamp.z) < T.safe_radius - 1e-7) return;
+  }
+  const previousGround = terrain(g.night, shade.x, shade.z);
+  if (Number.isFinite(previousGround)) shade.y += ground - previousGround;
+  shade.x = x;
+  shade.z = z;
 }
 
 function wanderTarget(g, shade) {
-  if (RULE_VERSION >= 12) {
-    const weak = sortedNear(shade, g.lanterns.filter(lamp => lamp.lit && lamp.fuelUnits < lowFuel))[0];
-    if (weak) return weak;
+  let weak = null;
+  let unlit = null;
+  let weakDistance = Infinity;
+  let unlitDistance = Infinity;
+  for (const lamp of g.lanterns) {
+    if (lamp.lit && (RULE_VERSION < 12 || lamp.fuelUnits >= lowFuel)) continue;
+    const separation = distance(shade, lamp);
+    if (lamp.lit && separation < weakDistance) {
+      weak = lamp;
+      weakDistance = separation;
+    } else if (!lamp.lit && separation < unlitDistance) {
+      unlit = lamp;
+      unlitDistance = separation;
+    }
   }
-  return sortedNear(shade, g.lanterns.filter(lamp => !lamp.lit))[0];
+  return weak ?? unlit;
 }
 
 function wander(g, shade, safeLamps, speed) {
@@ -446,9 +477,12 @@ function contacts(g) {
     note(g, 'drifter_steal', { drifter_id: drifter.id, amount, carried: p.fireflies });
   }
   if (p.invuln || g.lanterns.some(lamp => stateSafe(lamp) && distance(lamp, p) < 6)) return;
-  const shade = g.enemies.slice().sort(byId).find(item => !item.expel &&
-    ['chase', 'wander', 'drain'].includes(item.state) && distance(item, p) <= T.shade_hit_radius &&
-    Math.abs(item.y - p.y) <= 1.5);
+  let shade = null;
+  for (const enemy of g.enemies) {
+    if (enemy.expel || !(enemy.state === 'chase' || enemy.state === 'wander' || enemy.state === 'drain') ||
+        distance(enemy, p) > T.shade_hit_radius || Math.abs(enemy.y - p.y) > 1.5) continue;
+    if (!shade || byId(enemy, shade) < 0) shade = enemy;
+  }
   if (!shade) return;
   const dropped = Math.floor(p.fireflies * T.hit_drop_ratio);
   p.health -= 1;
@@ -495,6 +529,7 @@ function spawn(g) {
 }
 
 function finish(g) {
+  if (RULE_VERSION >= 12 && g.player.health > 0 && g.timeTicks > 0) return;
   const lit = g.lanterns.filter(lamp => lamp.lit);
   let result;
   let reason;

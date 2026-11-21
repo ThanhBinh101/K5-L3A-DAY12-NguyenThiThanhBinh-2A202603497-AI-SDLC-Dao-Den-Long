@@ -328,7 +328,7 @@ export function createWorld(canvas) {
     const x = player.x;
     const z = coordinate(player);
     const moved = lastPoint ? Math.hypot(x-lastPoint.x,z-lastPoint.z) : 0;
-    const stride = moved > .001 ? 1 : 0;
+    const stride = time !== 0 && moved > .001 ? 1 : 0;
     travelTime += moved*8.9;
     const sway = .035 * Math.sin(time*3.6) + .067*stride*Math.abs(Math.sin(travelTime));
     const facing = lastPoint && moved > .001 ? Math.atan2(x-lastPoint.x,z-lastPoint.z) : lastPoint?.yaw;
@@ -377,7 +377,7 @@ export function createWorld(canvas) {
   }
 
   function render(state, now = 0, options = {}) {
-    const time = now/1000;
+    const time = options.reducedMotion ? 0 : now/1000;
     const night = state.night ?? 1;
     const radius = night === 2 ? 28 : night === 3 ? 45 : 40;
     if (radius !== mapRadius) {
@@ -432,7 +432,7 @@ export function createWorld(canvas) {
     const latestPulse = state.events?.findLast((event) => ['pulse','light_pulse'].includes(event.name ?? event.kind));
     const pulseAge = (state.tick ?? 0) - (latestPulse?.tick ?? -99);
     if (pulseAge >= 0 && pulseAge < 24) {
-      const spread = .8 + pulseAge*.22;
+      const spread = options.reducedMotion ? 5 : .8 + pulseAge*.22;
       floor(loop,x,(player.groundY ?? 0)+.048,z,spread,spread,alpha(p.gold,.76*(1-pulseAge/24)),{glow:1});
     }
     const lit = state.lanterns?.filter((item) => item.lit).length ?? 0;

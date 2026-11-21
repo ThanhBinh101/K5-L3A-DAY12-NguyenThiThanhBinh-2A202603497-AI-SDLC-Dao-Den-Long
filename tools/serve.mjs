@@ -2,6 +2,8 @@
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createLeaderboard, leaderboardRoute } from './leaderboard.mjs';
 
 const portFlag = process.argv.indexOf('--port');
 const port = Number(portFlag < 0 ? (process.env.PORT ?? 4173) : process.argv[portFlag + 1]);
@@ -10,6 +12,15 @@ const mime = {
   '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml',
 };
 const root = new URL('../', import.meta.url);
+const board = createLeaderboard(process.env.DAY12_LEADERBOARD_FILE ??
+  fileURLToPath(new URL('.data/leaderboard.json', root)));
+const exportFlag = process.argv.indexOf('--export-leaderboard');
+if (exportFlag !== -1) {
+  const output = process.argv[exportFlag + 1];
+  if (!output || output.startsWith('--')) throw new Error('Cần tệp sau --export-leaderboard.');
+  await board.exportTo(output);
+  process.exit(0);
+}
 const files = new Map([
   ['/', 'web/index.html'],
   ['/web/style.css', 'web/style.css'],
@@ -19,6 +30,7 @@ const files = new Map([
 
 const server = createServer(async (request, response) => {
   const pathname = new URL(request.url, 'http://localhost').pathname;
+  if (pathname === '/api/leaderboard') return leaderboardRoute(request, response, board);
   const module = /^\/(?:web\/world[\w-]*|src\/[\w-]+)\.mjs$/.test(pathname);
   const file = files.get(pathname) ?? (module ? pathname.slice(1) : null);
   if (!file) {

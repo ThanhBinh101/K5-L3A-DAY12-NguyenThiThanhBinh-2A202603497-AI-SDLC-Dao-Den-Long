@@ -11,3 +11,5 @@
 Từ v1.1, giữ tick gameplay tách riêng tick input. Đối chiếu thứ tự tick và tọa độ bản đồ trong Ticket-02 trước khi sửa.
 
 Từ v1.2, bảo toàn nhiên liệu bằng số nguyên (1 đơn vị = 60 phần), cập nhật test và ADR khi đổi điều kiện bình minh.
+
+Từ v1.3, chạy bench 30 giây và soak 10 đêm trước release. Bản đo hiệu năng phải nêu cấu hình máy đo.

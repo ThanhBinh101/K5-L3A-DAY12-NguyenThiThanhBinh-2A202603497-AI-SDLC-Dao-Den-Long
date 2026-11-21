@@ -1,6 +1,6 @@
 {
   "name": "dao-den-long",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -8,11 +8,12 @@
   },
   "scripts": {
     "start": "node tools/serve.mjs",
-    "test": "node --test tests/core.test.mjs tests/contract.test.mjs",
+    "test": "node --test tests/core.test.mjs tests/contract.test.mjs tests/leaderboard.test.mjs",
     "verify": "node tools/verify.mjs",
     "install-hooks": "git config --local core.hooksPath tools/git-hooks",
     "bench": "node tools/bench.mjs",
     "package": "node tools/package.mjs",
-    "build": "node tools/build.mjs"
+    "build": "node tools/build.mjs",
+    "soak": "node --jitless --max-semi-space-size=1 tools/soak.mjs"
   }
 }
