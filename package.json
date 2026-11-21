@@ -8,10 +8,11 @@
   },
   "scripts": {
     "start": "node tools/serve.mjs",
-    "test": "node --test tests/game.test.mjs tests/headless.test.mjs",
+    "test": "node --test tests/core.test.mjs tests/contract.test.mjs",
     "verify": "node tools/verify.mjs",
     "install-hooks": "git config --local core.hooksPath tools/git-hooks",
     "bench": "node tools/bench.mjs",
-    "package": "node tools/package.mjs"
+    "package": "node tools/package.mjs",
+    "build": "node tools/build.mjs"
   }
 }

@@ -1,0 +1,16 @@
+✔ file-based headless emits deterministic JSONL with an end record (74.949ms)
+✔ camera-relative movement persists and is independent of snapshot cadence (73.228167ms)
+✔ scenario pickup and partial deposit produce the required event payloads (36.445541ms)
+✔ the final lantern follows the versioned victory rule (69.517416ms)
+✔ malformed flags fail with contract exit code 2 (31.11625ms)
+✔ jump starts from ground and lands again (1.992291ms)
+✔ pulse costs three motes, pushes four metres over 15 ticks and does not repeat on hold (1.127458ms)
+✔ enemy contact costs one flame, drops half and starts invulnerability (0.283167ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 334.865791

@@ -1,23 +1,30 @@
-import { createGame, HIT_DELAY_TICKS, nearestLantern, STEP_MS, stepGame } from '../src/game.mjs';
+import { createGame, nearestLantern, STEP_MS, stepGame } from '../src/game.mjs';
 import { createWorld } from './world.mjs';
 
-const canvas = document.querySelector('#world');
-const hud = document.querySelector('#hud');
-const overlay = document.querySelector('#overlay');
-const start = document.querySelector('#start');
-const title = document.querySelector('#panel-title');
-const body = document.querySelector('#panel-text');
-const hint = document.querySelector('#hint');
-const health = document.querySelector('#health');
-const fireflies = document.querySelector('#fireflies');
-const lanterns = document.querySelector('#lanterns');
-const sound = document.querySelector('#mute');
-const announcement = document.querySelector('#announcement');
-const touchControls = document.querySelector('#touch-controls');
-const keys = new Map([
+const get = (id) => document.getElementById(id);
+const canvas = get('world');
+const hud = get('hud');
+const overlay = get('overlay');
+const start = get('start');
+const title = get('panel-title');
+const body = get('panel-text');
+const hint = get('hint');
+const health = get('health');
+const fireflies = get('fireflies');
+const slots = get('mote-slots');
+const lanterns = get('lanterns');
+const clock = get('clock');
+const score = get('score');
+const sound = get('mute');
+const announcement = get('announcement');
+const touchControls = get('touch-controls');
+const movement = new Map([
   ['KeyW', 'up'], ['ArrowUp', 'up'], ['KeyS', 'down'], ['ArrowDown', 'down'],
   ['KeyA', 'left'], ['ArrowLeft', 'left'], ['KeyD', 'right'], ['ArrowRight', 'right'],
 ]);
+const actions = new Map([['KeyE','light'], ['Space','jump'], ['KeyQ','pulse']]);
+const held = new Set();
+const requested = new Set();
 
 let world;
 try {
@@ -30,8 +37,6 @@ try {
 
 let game = createGame();
 let playing = false;
-let held = new Set();
-let light = false;
 let lastFrame = 0;
 let carry = 0;
 let eventCount = 0;
@@ -39,10 +44,9 @@ let audio;
 let soundOn = false;
 
 const tunes = {
-  collect: [659, 880],
-  light: [523, 659, 784, 1047],
-  hit: [165, 110],
-  won: [659, 784, 880, 1047, 1319],
+  collect: [659, 880], light: [523, 659, 784, 1047], deposit: [659],
+  pulse: [392, 784], jump: [493, 659], hit: [165, 110],
+  won: [659, 784, 880, 1047, 1319], lost: [440, 294, 196],
 };
 
 function playSound(kind) {
@@ -77,8 +81,8 @@ function begin() {
   game = createGame();
   eventCount = 0;
   carry = 0;
-  light = false;
-  held = new Set();
+  requested.clear();
+  held.clear();
   announcement.textContent = '';
   playing = true;
   overlay.hidden = true;
@@ -90,32 +94,39 @@ function begin() {
 }
 start.addEventListener('click', begin);
 
+const status = () => game.result ?? game.mode;
+const won = () => status() === 'win' || status() === 'won';
+const ended = () => ['win','won','lose','lost','game_over','gameover'].includes(status());
+
 function endRound() {
   playing = false;
   hint.hidden = true;
   touchControls.hidden = true;
-  title.textContent = game.mode === 'won' ? 'Đảo đã sáng!' : 'Sương phủ kín';
-  body.textContent = game.mode === 'won'
-    ? 'Mây đã thắp hết Đèn Lồng Lớn và đưa ánh sáng trở về.'
-    : 'Mây đã hết tim. Hãy đi vòng qua Bóng Mực ở lượt sau.';
+  title.textContent = won() ? 'Đảo đã sáng!' : 'Sương phủ kín';
+  body.textContent = won()
+    ? `Mây thắp đủ Đèn Lồng Lớn và mang về ${game.score ?? 0} điểm.`
+    : 'Mây có thể thử một con đường khác để gom đom đóm và tránh Bóng Mực.';
   start.textContent = 'Chơi lại →';
   overlay.hidden = false;
   start.focus();
+  playSound(won() ? 'won' : 'lost');
 }
 
 document.addEventListener('keydown', event => {
   if (event.altKey || event.ctrlKey || event.metaKey) return;
   if (event.code === 'KeyR' && world && !event.repeat) begin();
   if (!playing) return;
-  if (keys.has(event.code)) {
-    event.preventDefault();
-    held.add(event.code);
-  }
-  if (event.code === 'KeyE' && !event.repeat) light = true;
+  const direction = movement.get(event.code);
+  const action = actions.get(event.code);
+  if (direction || action) event.preventDefault();
+  if (direction) held.add(direction);
+  if (action && !event.repeat) requested.add(action);
 });
-document.addEventListener('keyup', event => held.delete(event.code));
+document.addEventListener('keyup', event => held.delete(movement.get(event.code)));
 window.addEventListener('blur', () => held.clear());
-document.querySelector('#touch-light').addEventListener('click', () => { light = true; });
+for (const action of ['light','jump','pulse']) {
+  get(`touch-${action}`).addEventListener('click', () => requested.add(action));
+}
 
 for (const button of document.querySelectorAll('[data-move]')) {
   const control = button.dataset.move;
@@ -131,38 +142,51 @@ function setText(element, value) {
   if (element.textContent !== value) element.textContent = value;
 }
 
-function setAttribute(element, key, value) {
-  if (element.getAttribute(key) !== value) element.setAttribute(key, value);
-}
-
 function syncHud() {
-  setAttribute(canvas, 'data-tick', String(game.tick));
+  canvas.dataset.tick = game.tick;
   const model = game.player;
-  const heartLabel = `${model.health} trên ${game.maxHealth} tim`;
+  const flames = model.flames ?? model.health ?? 0;
+  const maxFlames = game.maxFlames ?? game.maxHealth ?? 3;
+  const carried = model.carried ?? model.fireflies ?? 0;
+  const capacity = model.capacity ?? game.capacity ?? 10;
+  const heartLabel = `${flames} trên ${maxFlames} Lửa Tim`;
   if (health.getAttribute('aria-label') !== heartLabel) {
     health.setAttribute('aria-label', heartLabel);
-    health.replaceChildren(...Array.from({ length: game.maxHealth }, (_, index) => {
-      const heart = document.createElement('span');
-      heart.classList.toggle('empty', index >= model.health);
-      heart.setAttribute('aria-hidden', 'true');
-      heart.textContent = '♥';
-      return heart;
+    health.replaceChildren(...Array.from({ length: maxFlames }, (_, index) => {
+      const flame = document.createElement('span');
+      flame.classList.toggle('empty', index >= flames);
+      flame.setAttribute('aria-hidden', 'true');
+      flame.textContent = '♦';
+      return flame;
     }));
   }
+  const inventoryLabel = `${carried} / ${capacity}`;
+  if (fireflies.textContent !== inventoryLabel || !slots.children.length) {
+    setText(fireflies, inventoryLabel);
+    slots.replaceChildren(...Array.from({ length: capacity }, (_, index) => {
+      const slot = document.createElement('span');
+      slot.className = index < carried ? 'mote full' : 'mote';
+      return slot;
+    }));
+  }
+
   const lit = game.lanterns.filter(lantern => lantern.lit).length;
-  setText(fireflies, String(model.fireflies));
   setText(lanterns, `${lit} / ${game.lanterns.length}`);
+  setText(score, String(game.score ?? 0));
+  const seconds = Math.max(0, Math.ceil(game.timeLeft ?? (game.remainingMs ?? (240000-game.tick*STEP_MS))/1000));
+  setText(clock, [Math.floor(seconds/60),seconds%60].map(value => String(value).padStart(2,'0')).join(':'));
   const near = nearestLantern(game);
-  const recentHit = game.tick - game.lastHit < HIT_DELAY_TICKS / 2;
-  if (recentHit) setText(hint, 'Bóng Mực chạm Mây. Hãy tránh xa!');
-  else if (near && model.fireflies >= near.cost) setText(hint, 'Nhấn E hoặc nút Thắp đèn.');
-  else if (near) setText(hint, `Cần thêm ${near.cost - model.fireflies} đom đóm để thắp đèn này.`);
-  else setText(hint, lit ? 'Theo ánh đom đóm đến chiếc đèn tiếp theo.' : 'Gom đom đóm dọc đường đến chiếc đèn đầu tiên.');
+  const required = near?.required ?? near?.cost ?? near?.need ?? 0;
+  const deposited = near?.deposited ?? near?.motes ?? 0;
+  if (near && carried) setText(hint, `E · Nạp đèn (${deposited}/${required})`);
+  else if (near) setText(hint, `Đèn đã nhận ${deposited}/${required} đom đóm. Hãy nhặt thêm.`);
+  else setText(hint, 'Gom đom đóm rồi mang đến Đèn Lồng Lớn.');
 
   for (const event of game.events.slice(eventCount)) {
-    playSound(event.kind);
-    if (event.kind === 'hit') announcement.textContent = `Bóng Mực chạm Mây. Còn ${model.health} tim.`;
-    if (event.kind === 'light') announcement.textContent = `Đã thắp ${lit} trên ${game.lanterns.length} đèn.`;
+    const name = event.name ?? event.kind;
+    playSound(name);
+    if (name === 'hit') announcement.textContent = `Bóng Mực chạm Mây. Còn ${flames} Lửa Tim.`;
+    if (name === 'light' || name === 'lantern_lit') announcement.textContent = `Đã thắp ${lit} trên ${game.lanterns.length} đèn.`;
   }
   eventCount = game.events.length;
 }
@@ -170,15 +194,14 @@ function syncHud() {
 function frame(now) {
   if (playing) {
     carry += Math.min(now - lastFrame, 100);
-    while (carry >= STEP_MS && game.mode === 'playing') {
-      const controls = [...held].map(key => keys.get(key) ?? key);
-      const input = Object.fromEntries(controls.map(key => [key, true]));
-      stepGame(game, { ...input, light });
-      light = false;
+    while (carry >= STEP_MS && !ended()) {
+      const input = Object.fromEntries([...held, ...requested].map(command => [command, true]));
+      stepGame(game, input);
+      requested.clear();
       carry -= STEP_MS;
     }
     syncHud();
-    if (game.mode !== 'playing') endRound();
+    if (ended()) endRound();
   }
   lastFrame = now;
   world.render(game, now);

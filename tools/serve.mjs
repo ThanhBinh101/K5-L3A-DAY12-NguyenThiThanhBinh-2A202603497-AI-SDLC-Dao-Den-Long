@@ -19,7 +19,8 @@ const files = new Map([
 
 const server = createServer(async (request, response) => {
   const pathname = new URL(request.url, 'http://localhost').pathname;
-  const file = files.get(pathname) ?? (/^\/web\/world[\w-]*\.mjs$/.test(pathname) ? pathname.slice(1) : null);
+  const module = /^\/(?:web\/world[\w-]*|src\/[\w-]+)\.mjs$/.test(pathname);
+  const file = files.get(pathname) ?? (module ? pathname.slice(1) : null);
   if (!file) {
     response.writeHead(404).end('Not found');
     return;

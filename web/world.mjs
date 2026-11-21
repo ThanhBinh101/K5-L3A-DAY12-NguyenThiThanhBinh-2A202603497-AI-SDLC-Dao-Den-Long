@@ -64,6 +64,7 @@ export function createWorld(canvas) {
   const bloom = renderer.register(sphereGeometry(4, 6));
   const tube = renderer.register(cylinderGeometry(1, 1, 18));
   const stem = renderer.register(cylinderGeometry(.6, 1, 7));
+  const hat = renderer.register(cylinderGeometry(.04, 1, 24));
   const stand = renderer.register(cylinderGeometry(.75, 1, 8));
   const top = renderer.register(islandGeometry());
   const bank = renderer.register(islandGeometry(true));
@@ -187,40 +188,41 @@ export function createWorld(canvas) {
     }
   }
 
-  function shadow(x, z, width, depth) {
-    floor(disk, x,.023,z,width,depth,alpha(p.shadow,.25),{glow:1});
+  function shadow(x, z, width, depth, y = 0) {
+    floor(disk, x,y+.023,z,width,depth,alpha(p.shadow,.25),{glow:1});
   }
 
   function lantern(item, time) {
     const { x, lit } = item;
     const z = coordinate(item);
+    const base = item.y ?? 0;
     const metal = lit ? p.ember : p.violet;
     const paper = lit ? p.gold : p.blush;
     const halo = lit ? p.gold : p.pink;
     const band = lit ? p.amber : p.raspberry;
     const pulse = .93 + .07*Math.sin(time*2.3);
-    floor(disk,x,.021,z,1.34,1.34,alpha(halo,.36),{glow:1});
-    floor(loop,x,.027,z,1.53,1.53,alpha(halo,lit ? .84 : .66),{glow:1});
-    shadow(x,z,.80,.60);
-    cyl(x,.13,z,.57,.14,.57,metal,{},stand);
-    cyl(x,.27,z,.43,.09,.43,band,{},stand);
-    cyl(x,.45,z,.20,.19,.20,metal,{},stem);
-    cyl(x,.66,z,.48,.07,.48,band,{},stand);
-    ellipsoid(x,1.12,z,.49,.54,.49,paper,{glow:lit ? pulse : .28});
+    floor(disk,x,base+.021,z,1.34,1.34,alpha(halo,.36),{glow:1});
+    floor(loop,x,base+.027,z,1.53,1.53,alpha(halo,lit ? .84 : .66),{glow:1});
+    shadow(x,z,.80,.60,base);
+    cyl(x,base+.13,z,.57,.14,.57,metal,{},stand);
+    cyl(x,base+.27,z,.43,.09,.43,band,{},stand);
+    cyl(x,base+.45,z,.20,.19,.20,metal,{},stem);
+    cyl(x,base+.66,z,.48,.07,.48,band,{},stand);
+    ellipsoid(x,base+1.12,z,.49,.54,.49,paper,{glow:lit ? pulse : .28});
     for (let side = 0; side < 8; side++) {
       const angle = side*radians/8;
       const radius = .467;
-      cyl(x+Math.cos(angle)*radius,1.12,z+Math.sin(angle)*radius,.024,.35,.024,band,{glow:lit ? .42 : .03},stem);
+      cyl(x+Math.cos(angle)*radius,base+1.12,z+Math.sin(angle)*radius,.024,.35,.024,band,{glow:lit ? .42 : .03},stem);
     }
-    cyl(x,1.63,z,.52,.07,.52,metal,{},stand);
-    cyl(x,1.77,z,.57,.13,.57,band,{},stand);
-    cyl(x,1.92,z,.23,.11,.23,metal,{},stand);
-    ellipsoid(x,2.05,z,.115,.13,.115,lit ? p.light : p.pink,{glow:lit ? 1 : .31},bud);
+    cyl(x,base+1.63,z,.52,.07,.52,metal,{},stand);
+    cyl(x,base+1.77,z,.57,.13,.57,band,{},stand);
+    cyl(x,base+1.92,z,.23,.11,.23,metal,{},stand);
+    ellipsoid(x,base+2.05,z,.115,.13,.115,lit ? p.light : p.pink,{glow:lit ? 1 : .31},bud);
     if (!lit) return;
-    ellipsoid(x,1.17,z,.69,.62,.69,alpha(p.gold,.18),{glow:1},bud);
+    ellipsoid(x,base+1.17,z,.69,.62,.69,alpha(p.gold,.18),{glow:1},bud);
     for (let i = 0; i < 5; i++) {
       const orbit = time*.71 + i*radians/5;
-      ellipsoid(x+Math.cos(orbit)*(.57+i*.09), .96+i*.35+Math.sin(orbit*2)*.17,z+Math.sin(orbit)*(.57+i*.09),
+      ellipsoid(x+Math.cos(orbit)*(.57+i*.09), base+.96+i*.35+Math.sin(orbit*2)*.17,z+Math.sin(orbit)*(.57+i*.09),
         .041,.051,.041,p.light,{glow:1},bud);
     }
   }
@@ -229,8 +231,9 @@ export function createWorld(canvas) {
     const { x } = item;
     const z = coordinate(item);
     const phase = time * 2.4 + index*1.8;
-    const h = .58 + Math.sin(phase)*.13;
-    floor(loop,x,.023,z,.47,.47,alpha(p.cream,.87),{glow:1});
+    const floorY = item.groundY ?? 0;
+    const h = Math.max(floorY+.31, item.y ?? .58) + Math.sin(phase)*.11;
+    floor(loop,x,floorY+.023,z,.47,.47,alpha(p.cream,.87),{glow:1});
     ellipsoid(x,h,z,.13,.13,.13,p.light,{glow:1},bud);
     ellipsoid(x,h,z,.24,.24,.24,alpha(p.gold,.27),{glow:1},bud);
     ellipsoid(x-.12,h+.065,z,.12,.035,.085,alpha(p.white,.86),{yaw:phase,roll: .26*Math.sin(phase*9),glow:1},bud);
@@ -241,9 +244,10 @@ export function createWorld(canvas) {
   function shade(item, time, index) {
     const x = item.x;
     const z = coordinate(item);
-    const y = Math.sin(time*3.7+index)*.105;
-    shadow(x,z,.7,.52);
-    floor(loop,x,.022,z,.83,.83,alpha(p.violet,.49),{glow:1});
+    const base = item.y ?? 0;
+    const y = base + Math.sin(time*3.7+index)*.105;
+    shadow(x,z,.7,.52,base);
+    floor(loop,x,base+.022,z,.83,.83,alpha(p.violet,.49),{glow:1});
     ellipsoid(x,.63+y,z,.58,.42,.49,p.dark,{glow:.12});
     ellipsoid(x,.47+y,z,.51,.30,.42,p.ink);
     ellipsoid(x-.30,1.03+y,z-.05,.17,.34,.145,p.dark,{roll:.33},bud);
@@ -266,15 +270,15 @@ export function createWorld(canvas) {
     travelTime += moved*8.9;
     const sway = .035 * Math.sin(time*3.6) + .067*stride*Math.abs(Math.sin(travelTime));
     const facing = lastPoint && moved > .001 ? Math.atan2(x-lastPoint.x,z-lastPoint.z) : lastPoint?.yaw;
-    // The simulation measures direction clockwise from north (-Z); the model faces local +Z.
-    const yaw = Number.isFinite(player.dir) ? Math.PI - player.dir : facing ?? (Math.PI+cameraYaw);
+    const yaw = Number.isFinite(player.dir) ? player.dir : facing ?? (Math.PI+cameraYaw);
     lastPoint = { x, z, yaw };
+    const altitude = player.y ?? 0;
     const cs = Math.cos(yaw);
     const sn = Math.sin(yaw);
     function part(dx,dy,dz,rx,ry,rz,color,details,shape) {
-      ellipsoid(x+cs*dx+sn*dz,dy+sway,z-sn*dx+cs*dz,rx,ry,rz,color,{...details,yaw:yaw+(details?.yaw ?? 0)},shape);
+      ellipsoid(x+cs*dx+sn*dz,altitude+dy+sway,z-sn*dx+cs*dz,rx,ry,rz,color,{...details,yaw:yaw+(details?.yaw ?? 0)},shape);
     }
-    shadow(x,z,.61,.49);
+    shadow(x,z,.61,.49,player.groundY ?? 0);
     floor(loop,x,.031,z,.67,.67,alpha(p.white,.71),{glow:1});
     part(0,.60,-.03,.37,.36,.25,p.rose,{glow:.09});
     part(0,.52,.178,.23,.25,.10,p.cream);
@@ -295,11 +299,14 @@ export function createWorld(canvas) {
       part(.165*side,1.119,.438,.055,.031,.035,p.blush,{glow:.4},bud);
     }
     part(0,1.111,.472,.037,.018,.014,p.ember,{},bud);
-    part(0,1.54,-.005,.17,.12,.16,p.pink,{glow:.25},bud);
-    // Bow, twin folds, and floating scarf ribbon mark Mây's silhouette from behind.
-    part(-.14,1.48,-.288,.19,.082,.082,p.cream,{roll:.38,glow:.3});
-    part(.14,1.48,-.288,.19,.082,.082,p.cream,{roll:-.38,glow:.3});
-    part(0,1.46,-.338,.083,.075,.065,p.gold,{glow:.48});
+    cyl(x,altitude+1.61+sway,z,.63,.024,.60,p.amber,{yaw},tube);
+    cyl(x,altitude+1.76+sway,z,.62,.164,.59,p.cream,{yaw,glow:.23},hat);
+    cyl(x,altitude+1.617+sway,z,.59,.017,.56,p.gold,{yaw,glow:.19},tube);
+    // Mây's small lantern swings separately from the scarf at her hip.
+    part(.39,.54,.10,.029,.15,.029,p.raspberry,{},stem);
+    part(.39,.385,.10,.112,.13,.102,p.gold,{glow:1},bud);
+    part(.39,.484,.10,.10,.040,.094,p.raspberry,{},stand);
+    part(.39,.292,.10,.093,.034,.087,p.raspberry,{},stand);
     part(0,.831,-.07,.34,.093,.29,p.raspberry,{glow:.08});
     part(.125,.71,-.32,.115,.18,.15,p.blush,{roll:-.45});
     const ribbon = .07*Math.sin(time*4.8);
@@ -309,18 +316,19 @@ export function createWorld(canvas) {
 
   function render(state, now = 0) {
     const time = now/1000;
-    const radius = state.radius ?? state.world?.radius ?? 18;
+    const radius = state.radius ?? state.world?.radius ?? 40;
     if (radius !== mapRadius) {
       mapRadius = radius;
       scenery = environment(radius);
     }
-    const player = state.player ?? { x:0, z:11 };
-    const yaw = state.viewYaw ?? 0;
+    const player = state.player ?? { x:0, z:0 };
+    const yaw = state.viewYaw ?? Math.PI;
     const x = player.x;
     const z = coordinate(player);
     const distance = state.cameraDistance ?? 8.9;
-    const eye = [x+Math.sin(yaw)*distance, distance*.74, z+Math.cos(yaw)*distance];
-    const target = [x-Math.sin(yaw)*3.75, 1.02, z-Math.cos(yaw)*3.75];
+    const elevation = player.y ?? 0;
+    const eye = [x+Math.sin(yaw)*distance, elevation+distance*.74, z+Math.cos(yaw)*distance];
+    const target = [x-Math.sin(yaw)*3.75, elevation+1.02, z-Math.cos(yaw)*3.75];
     landscape(radius,time);
 
     for (const lanternItem of state.lanterns ?? []) lantern(lanternItem,time);
@@ -332,6 +340,12 @@ export function createWorld(canvas) {
     }
 
     hero(player,time,yaw);
+    const latestPulse = state.events?.findLast((event) => ['pulse','light_pulse'].includes(event.name ?? event.kind));
+    const pulseAge = (state.tick ?? 0) - (latestPulse?.tick ?? -99);
+    if (pulseAge >= 0 && pulseAge < 24) {
+      const spread = .8 + pulseAge*.22;
+      floor(loop,x,(player.groundY ?? 0)+.048,z,spread,spread,alpha(p.gold,.76*(1-pulseAge/24)),{glow:1});
+    }
     renderer.render(eye,target,time);
   }
 

@@ -22,19 +22,27 @@
       <div class="hud" id="hud" hidden>
         <div class="meters">
           <div class="stat">
-            <span class="stat-label">Sức khỏe</span>
-            <strong id="health" class="hearts" aria-label="3 trên 3 tim">♥ ♥ ♥</strong>
+            <span class="stat-label">Lửa Tim</span>
+            <strong id="health" class="hearts" aria-label="3 trên 3 Lửa Tim">♦ ♦ ♦</strong>
           </div>
-          <div class="stat">
-            <span class="stat-label">Đom đóm</span>
-            <strong><span class="light-dot" aria-hidden="true"></span> <span id="fireflies">0</span></strong>
+          <div class="stat timer">
+            <span class="stat-label">Còn lại</span>
+            <strong id="clock">04:00</strong>
           </div>
           <div class="stat">
             <span class="stat-label">Đèn đã thắp</span>
-            <strong id="lanterns">0 / 3</strong>
+            <strong id="lanterns">0 / 5</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Điểm</span>
+            <strong id="score">0</strong>
           </div>
         </div>
-        <p class="hint" id="hint">Gom đom đóm dọc đường đến chiếc đèn đầu tiên.</p>
+        <div class="inventory" aria-label="Đom đóm mang theo">
+          <span id="mote-slots" aria-hidden="true"></span>
+          <strong id="fireflies">0 / 10</strong>
+        </div>
+        <p class="hint" id="hint">Gom đom đóm rồi mang đến Đèn Lồng Lớn.</p>
       </div>
       <div class="overlay" id="overlay">
         <div class="intro">
@@ -51,13 +59,19 @@
           <button type="button" data-move="down" class="south" aria-label="Đi lùi">↓</button>
           <button type="button" data-move="right" class="east" aria-label="Đi phải">→</button>
         </div>
-        <button type="button" class="touch-light" id="touch-light">Thắp đèn</button>
+        <div class="touch-actions">
+          <button type="button" class="touch-light" id="touch-jump">Nhảy</button>
+          <button type="button" class="touch-light" id="touch-pulse">Xung sáng</button>
+          <button type="button" class="touch-light" id="touch-light">Thắp đèn</button>
+        </div>
       </div>
       <p class="sr-only" id="announcement" role="status"></p>
     </section>
     <footer class="controls" aria-label="Điều khiển">
       <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> <small>hoặc phím mũi tên</small> Di chuyển</span>
-      <span><kbd>E</kbd> Thắp đèn</span>
+      <span><kbd>E</kbd> Nạp đèn</span>
+      <span><kbd>Space</kbd> Nhảy</span>
+      <span><kbd>Q</kbd> Xung sáng</span>
       <span><kbd>R</kbd> Chơi lại</span>
     </footer>
   </main>
