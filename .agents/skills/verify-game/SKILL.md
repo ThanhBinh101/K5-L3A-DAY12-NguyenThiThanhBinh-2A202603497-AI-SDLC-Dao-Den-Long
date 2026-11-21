@@ -8,3 +8,5 @@ description: Chạy test và lưu bằng chứng tái lập sau khi thay đổi 
 3. Đọc `docs/proof/run.json`, ba output headless và `node-test.txt`. Đối chiếu kết quả với tiêu chí trước khi chấm đạt.
 4. Chạy `npm start` và kiểm tra bắt đầu, điều khiển, thắp đèn và màn kết thúc nếu sửa trình duyệt.
 5. Chuyển diff cùng lệnh tái lập cho người hoặc agent khác review. Khi đủ điều kiện phát hành mới đánh tag phase.
+
+Từ v1.1, kiểm tra các Đêm 1–3 và trạng thái dừng bằng cả tick và sim_tick.

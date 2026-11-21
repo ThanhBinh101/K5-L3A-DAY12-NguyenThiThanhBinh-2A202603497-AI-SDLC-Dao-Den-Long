@@ -179,6 +179,45 @@ if (version >= 1) {
     assert(snapshots.at(-1).sim_tick > beforePause.sim_tick);
   });
 
+  test('Night 2 launch pad launches a grounded player toward the other island', t => {
+    const scenario = { ...isolated, ...optionalHazards, player: { pos: [20, 0, 18] } };
+    const { snapshots } = run(t, { night: 2, scenario, ticks: 12 });
+    const player = snapshots.at(-1).player;
+    assert.equal(player.grounded, false);
+    assert(player.pos[0] > 21);
+    assert(player.pos[1] > 0);
+    assert(player.pos[2] < 18);
+  });
+
+  test('Night 3 enabled wind activates repeatably and disabling it isolates motion', t => {
+    const options = { night: 3, ticks: 2100, snapshotEvery: 300 };
+    const base = { ...isolated, ...optionalHazards };
+    const windy = run(t, { ...options, scenario: { ...base, wind_enabled: true } });
+    const replay = run(t, { ...options, scenario: { ...base, wind_enabled: true } });
+    const calm = run(t, { ...options, scenario: base });
+    assert.equal(windy.raw, replay.raw);
+    assert(windy.snapshots.some(snapshot => snapshot.wind.active));
+    assert(calm.snapshots.every(snapshot => !snapshot.wind.active));
+    assert.notDeepEqual(windy.snapshots.at(-1).player.pos, calm.snapshots.at(-1).player.pos);
+  });
+
+  test('on hit only half the carried motes drop and immunity prevents immediate damage', t => {
+    const scenario = {
+      ...isolated, ...optionalHazards,
+      player: { pos: [0, 0, 0], carried: 5, flames: 3 },
+      shades: [{ id: 'S1', pos: [0.5, 0, 0] }],
+    };
+    const { events, snapshots } = run(t, { scenario });
+    assert.equal(events.filter(event => event.name === 'player_hit').length, 1);
+    assert.deepEqual(events.find(event => event.name === 'player_hit').data, {
+      by: 'shade', flames: 2, dropped: 2,
+    });
+    const { player, motes } = snapshots.at(-1);
+    assert.equal(player.invuln, true);
+    assert.equal(player.carried, 3);
+    assert.equal(motes.filter(mote => mote.kind === 'dropped' && mote.ttl_s > 0).length, 2);
+  });
+
   test('published night layouts and v1.1 snapshot fields are present', t => {
     const expected = [
       [0, 0, 25],

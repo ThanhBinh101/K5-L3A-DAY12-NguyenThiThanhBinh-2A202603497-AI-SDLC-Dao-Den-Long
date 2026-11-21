@@ -1,4 +1,4 @@
-export const RULE_VERSION = 10;
+export const RULE_VERSION = 11;
 export const STEP_MS = 1000 / 60;
 export const TUNING = Object.freeze({
   player_speed: 6, carry_capacity: 10, lantern_cost: 10, lantern_count_night1: 5,

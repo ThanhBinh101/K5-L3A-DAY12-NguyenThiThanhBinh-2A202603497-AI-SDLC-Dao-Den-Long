@@ -20,6 +20,7 @@
     <section class="game" aria-label="Game Đảo Đèn Lồng">
       <canvas id="world" aria-label="Thế giới 3D góc nhìn thứ ba của Mây"></canvas>
       <div class="hud" id="hud" hidden>
+        <div id="objective-arrow" class="objective-arrow" aria-label="Hướng tới đèn chưa thắp gần nhất" hidden>➜</div>
         <div class="meters">
           <div class="stat">
             <span class="stat-label">Lửa Tim</span>
@@ -42,6 +43,10 @@
           <span id="mote-slots" aria-hidden="true"></span>
           <strong id="fireflies">0 / 10</strong>
         </div>
+        <div class="cooldowns">
+          <span><kbd>⇧</kbd> Lướt <strong id="dash-cooldown">Sẵn sàng</strong></span>
+          <span><kbd>Q</kbd> Xung sáng <strong id="pulse-cooldown">Sẵn sàng</strong></span>
+        </div>
         <p class="hint" id="hint">Gom đom đóm rồi mang đến Đèn Lồng Lớn.</p>
       </div>
       <div class="overlay" id="overlay">
@@ -49,7 +54,17 @@
           <div class="motif" aria-hidden="true"><span>✦</span><i></i><span>✧</span></div>
           <h1 id="panel-title">Đảo Đèn Lồng</h1>
           <p id="panel-text">Cùng Mây gom đom đóm, né Bóng Mực và thắp sáng cả hòn đảo.</p>
-          <button class="action" type="button" id="start">Bắt đầu chơi <span aria-hidden="true">→</span></button>
+          <fieldset id="settings-fields" hidden>
+            <legend>Tùy chọn</legend>
+            <label>Âm lượng <input id="volume" type="range" min="0" max="100" value="55"></label>
+            <label>Độ nhạy chuột <input id="sensitivity" type="range" min="10" max="70" value="32"></label>
+          </fieldset>
+          <div class="panel-actions">
+            <button class="action" type="button" id="start">Bắt đầu chơi →</button>
+            <button class="secondary" type="button" id="retry" hidden>Chơi lại</button>
+            <button class="secondary" type="button" id="settings">Cài đặt</button>
+            <button class="secondary" type="button" id="home" hidden>Menu chính</button>
+          </div>
         </div>
       </div>
       <div class="touch-controls" id="touch-controls" hidden>
@@ -62,6 +77,7 @@
         <div class="touch-actions">
           <button type="button" class="touch-light" id="touch-jump">Nhảy</button>
           <button type="button" class="touch-light" id="touch-pulse">Xung sáng</button>
+          <button type="button" class="touch-light" id="touch-dash">Lướt</button>
           <button type="button" class="touch-light" id="touch-light">Thắp đèn</button>
         </div>
       </div>
@@ -72,7 +88,8 @@
       <span><kbd>E</kbd> Nạp đèn</span>
       <span><kbd>Space</kbd> Nhảy</span>
       <span><kbd>Q</kbd> Xung sáng</span>
-      <span><kbd>R</kbd> Chơi lại</span>
+      <span><kbd>⇧</kbd> Lướt</span>
+      <span><kbd>Esc</kbd> Tạm dừng</span>
     </footer>
   </main>
   <script type="module" src="./web/game-ui.mjs"></script>

@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.0",
+  "contract_version": "1.1",
   "team": "2A202603497-NguyenThiThanhBinh",
   "build_cmd": "node tools/build.mjs",
   "run_cmd": "node tools/serve.mjs",
@@ -30,6 +30,11 @@
       "per_stun": 5,
       "per_second_left": 2,
       "per_flame_left": 50
-    }
+    },
+    "dash_speed": 14,
+    "dash_duration_s": 0.2,
+    "dash_cooldown_s": 1.5,
+    "night2_duration_s": 330,
+    "night3_duration_s": 360
   }
 }

@@ -88,3 +88,21 @@ kbd { border: 1px solid #ead6e5; box-shadow: 0 2px 0 #ead6e5; min-width: 24px; t
 .touch-actions { display: flex; gap: 3px; flex-wrap: wrap; max-width: 135px; justify-content: end; }
 @media (pointer: coarse) { .touch-controls { bottom: 110px; } }
 @media (max-width: 700px) { .controls { flex-wrap: wrap; align-content: center; } .mote { width: 11px; height: 11px; } .meters .stat { padding-inline: 5px; } }
+.timer.urgent strong { color: #a52b46; animation: urgency 1s infinite step-end; }
+@keyframes urgency { 50% { color: #a52b4640; } }
+.panel-actions { display: flex; align-items: start; gap: 10px; flex-wrap: wrap; }
+.secondary { display: inline-flex; background: #fff5fa; border: 1px solid #d6a4c1; border-radius: 13px; padding: 13px 15px; font-weight: 750; color: #744165; }
+.secondary:hover { background: #f5dbe9; }
+#settings-fields { border: 0; margin: 0 0 17px; padding: 0; }
+#settings-fields legend { margin-bottom: 8px; font-weight: 800; }
+#settings-fields label { display: flex; gap: 8px; justify-content: space-between; align-items: center; min-height: 40px; }
+#settings-fields input[type="range"] { max-width: 125px; min-width: 60px; accent-color: var(--berry); }
+.cooldowns { position: absolute; bottom: 0; right: 0; background: #0e1430df; color: #f5f1e6; border: 1px solid #8fa3b8; padding: 9px 13px; border-radius: 12px; display: grid; gap: 6px; font-size: .86rem; }
+.cooldowns > span { display: grid; grid-template-columns: 22px 1fr auto; gap: 7px; align-items: center; }
+.cooldowns strong { font-variant-numeric: tabular-nums; color: #ffe9b0; min-width: 70px; text-align: right; }
+.objective-arrow { width: 35px; height: 35px; position: absolute; display: grid; place-items: center; background: #0e1430df; border: 1px solid #ffd477; border-radius: 100%; color: #ffe9b0; font-size: 1.28rem; transform: translate(-50%, -50%); }
+@media (max-width: 760px) {
+  .cooldowns { bottom: 100%; top: 78px; bottom: auto; gap: 3px; padding: 5px; font-size: .68rem; }
+  .cooldowns strong { min-width: 0; }
+  .cooldowns kbd { min-width: 12px; }
+}

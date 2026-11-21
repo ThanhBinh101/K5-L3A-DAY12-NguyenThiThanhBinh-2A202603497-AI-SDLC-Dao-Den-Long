@@ -1,0 +1,24 @@
+✔ file-based headless emits deterministic JSONL with an end record (82.639125ms)
+✔ camera-relative movement persists and is independent of snapshot cadence (75.020792ms)
+✔ scenario pickup and partial deposit produce the required event payloads (39.384625ms)
+✔ the final lantern follows the versioned victory rule (77.840417ms)
+✔ malformed flags fail with contract exit code 2 (37.853458ms)
+✔ pause advances wall ticks while holding simulation counters steady (41.733584ms)
+✔ Night 2 launch pad launches a grounded player toward the other island (39.244042ms)
+✔ Night 3 enabled wind activates repeatably and disabling it isolates motion (143.865875ms)
+✔ on hit only half the carried motes drop and immunity prevents immediate damage (41.6035ms)
+✔ published night layouts and v1.1 snapshot fields are present (121.404042ms)
+✔ jump starts from ground and lands again (2.062458ms)
+✔ pulse costs three motes, pushes four metres over 15 ticks and does not repeat on hold (1.507333ms)
+✔ enemy contact costs one flame, drops half and starts invulnerability (0.224ms)
+✔ dash travels 2.8m over 12 ticks and holding the button never retriggers (0.915542ms)
+✔ fall ignores invulnerability and respawn restores canonical start after 60 ticks (0.250166ms)
+✔ a wind charm refreshes the timer and a drifter steals without taking a flame (0.147625ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 752.102167

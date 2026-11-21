@@ -37,15 +37,18 @@ in vec4 color;
 in vec2 material;
 in float distanceToEye;
 uniform float time;
+uniform float ambient;
+uniform vec3 fogTint;
+uniform vec3 waveTint;
 out vec4 outputColor;
 void main() {
   vec3 normal = normalize(direction);
-  float light = .68 + .32 * max(0., dot(normal, normalize(vec3(-.52,.9,.42))));
+  float light = clamp(.23 + ambient + .30 * max(0., dot(normal, normalize(vec3(-.52,.9,.42)))), 0., 1.);
   vec3 tint = color.rgb;
   if (material.y > 1.5) {
     float wave = sin(world.x*.78 + world.z*1.4 + time*1.3) + sin(world.z*2.4 - world.x*.2 - time*.65);
     float ripple = pow(clamp(.47*wave,0.,1.),12.);
-    tint = mix(tint, vec3(1., .83, .93), .12 * ripple);
+    tint = mix(tint, waveTint, .14 * ripple);
     tint += .035 * sin(world.z*.14 + world.x*.11);
   } else if (material.y > .5) {
     float marbled = sin(world.x*.53 + world.z*.87) * cos(world.z*.41 - world.x*.4);
@@ -53,7 +56,7 @@ void main() {
   }
   tint *= mix(light, 1., material.x);
   float haze = smoothstep(19., 83., distanceToEye);
-  tint = mix(tint, vec3(.869, .741, .872), haze*.84);
+  tint = mix(tint, fogTint, haze*.81);
   outputColor = vec4(tint, color.a);
 }`;
 
@@ -69,13 +72,16 @@ const skyFragment = `#version 300 es
 precision highp float;
 in vec2 uv;
 uniform float aspect;
+uniform vec3 skyTint;
+uniform vec3 skyHorizon;
+uniform vec3 sunTint;
 out vec4 outputColor;
 void main() {
-  vec3 base = mix(vec3(.99,.82,.86), vec3(.76,.65,.86), smoothstep(.84,1.,uv.y));
+  vec3 base = mix(skyHorizon, skyTint, smoothstep(.76,1.,uv.y));
   vec2 delta = vec2((uv.x-.69)*aspect, uv.y-.947);
   float sun = length(delta);
-  base += exp(-14.*sun) * vec3(.15,.13,.1);
-  base = mix(base, vec3(1.,.93,.80), .91*(1.-smoothstep(.027,.029,sun)));
+  base += exp(-10.*sun) * .26*sunTint;
+  base = mix(base, sunTint, .96*(1.-smoothstep(.027,.029,sun)));
   outputColor = vec4(base,1.);
 }`;
 
@@ -112,8 +118,8 @@ const dot = (a, b) => a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
 
 function projectionView(aspect, eye, target) {
   const back = normalize(eye.map((value, axis) => value - target[axis]));
-  const right = normalize(cross([0, 1, 0], back));
-  const up = cross(back, right);
+  const right = normalize(cross(back, [0, 1, 0]));
+  const up = cross(right, back);
   const view = [
     right[0], up[0], back[0], 0,
     right[1], up[1], back[1], 0,
@@ -144,6 +150,12 @@ export function makeRenderer(canvas) {
   const viewUniform = gl.getUniformLocation(objects, 'viewProjection');
   const timeUniform = gl.getUniformLocation(objects, 'time');
   const aspectUniform = gl.getUniformLocation(sky, 'aspect');
+  const weatherUniforms = [
+    [objects, 'ambient'], [objects, 'fogTint'], [objects, 'waveTint'],
+    [sky, 'skyTint'], [sky, 'skyHorizon'], [sky, 'sunTint'],
+  ].map(([program, key]) => [key, gl.getUniformLocation(program, key)]);
+  const weather = Object.fromEntries(weatherUniforms);
+  let viewMatrix;
   const shapes = [];
 
   function register(vertices) {
@@ -178,7 +190,7 @@ export function makeRenderer(canvas) {
     batch.push(...position, ...size, yaw, roll, ...color, glow, surface);
   }
 
-  function render(eye, target, time) {
+  function render(eye, target, time, style) {
     const scale = Math.min(1.65, window.devicePixelRatio || 1);
     const width = Math.max(1, Math.round(canvas.clientWidth * scale));
     const height = Math.max(1, Math.round(canvas.clientHeight * scale));
@@ -192,11 +204,18 @@ export function makeRenderer(canvas) {
     gl.disable(gl.DEPTH_TEST);
     gl.useProgram(sky);
     gl.uniform1f(aspectUniform, aspect);
+    gl.uniform3fv(weather.skyTint, style.sky);
+    gl.uniform3fv(weather.skyHorizon, style.horizon);
+    gl.uniform3fv(weather.sunTint, style.sun);
     gl.bindVertexArray(skyVAO);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     gl.enable(gl.DEPTH_TEST);
     gl.useProgram(objects);
-    gl.uniformMatrix4fv(viewUniform, false, projectionView(aspect, eye, target));
+    viewMatrix = projectionView(aspect, eye, target);
+    gl.uniformMatrix4fv(viewUniform, false, viewMatrix);
+    gl.uniform1f(weather.ambient, style.ambient);
+    gl.uniform3fv(weather.fogTint, style.fog);
+    gl.uniform3fv(weather.waveTint, style.wave);
     gl.uniform3fv(cameraUniform, eye);
     gl.uniform1f(timeUniform, time);
 
@@ -221,7 +240,15 @@ export function makeRenderer(canvas) {
     gl.disable(gl.BLEND);
   }
 
-  return { register, draw, render };
+  function project(x, y, z) {
+    if (!viewMatrix) return null;
+    const clip = [0, 1, 2, 3].map((i) => viewMatrix[i]*x + viewMatrix[4+i]*y + viewMatrix[8+i]*z + viewMatrix[12+i]);
+    const w = Math.max(Math.abs(clip[3]), .001);
+    const sx = clip[0] / w;
+    const sy = clip[1] / w;
+    return { x: sx, y: -sy, behind: clip[3] < 0, visible: clip[3] > 0 && Math.abs(sx) < .93 && Math.abs(sy) < .91 };
+  }
+  return { register, draw, render, project };
 }
 
 const tau = Math.PI * 2;
@@ -287,14 +314,32 @@ export function islandGeometry(lower = false) {
   return vertices;
 }
 
-export function ringGeometry(outer = 1, inner = .85) {
+export function ringGeometry(outer = 1, inner = .85, span = tau) {
   const vertices = [];
   for (let i = 0; i < 40; i++) {
-    const angle = i*tau/40;
-    const next = (i+1)*tau/40;
+    const angle = i*span/40;
+    const next = (i+1)*span/40;
     function at(value, radius) { return [Math.cos(value)*radius, 0, Math.sin(value)*radius]; }
     const a = at(angle,inner), b = at(angle,outer), c = at(next,outer), d = at(next,inner);
     for (const point of [a,b,c,a,c,d]) vertex(vertices,point,[0,1,0]);
   }
   return vertices;
+}
+
+export function slabGeometry() {
+  return [
+    -1,0,-1, 0,1,0, 1,0,-1, 0,1,0, 1,0,1, 0,1,0,
+    -1,0,-1, 0,1,0, 1,0,1, 0,1,0, -1,0,1, 0,1,0,
+  ];
+}
+
+export function rampGeometry(bearing, inner, outer, width, fromY, toY) {
+  const angle = bearing * Math.PI/180;
+  const vx = Math.cos(angle);
+  const vz = Math.sin(angle);
+  function at(radius, side, y) {
+    return [radius*vx + side*width*vz,y,radius*vz - side*width*vx];
+  }
+  const points = [at(inner,-1,toY),at(inner,1,toY),at(outer,1,fromY),at(outer,-1,fromY)];
+  return [0,1,2,0,2,3].flatMap((i) => [...points[i],0,1,0]);
 }

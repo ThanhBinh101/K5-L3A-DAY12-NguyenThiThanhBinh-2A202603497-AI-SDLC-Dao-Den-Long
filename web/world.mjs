@@ -1,13 +1,13 @@
-import { makeRenderer, sphereGeometry, cylinderGeometry, islandGeometry, ringGeometry } from './world-gl.mjs';
+import { makeRenderer, sphereGeometry, cylinderGeometry, islandGeometry, ringGeometry, rampGeometry, slabGeometry } from './world-gl.mjs';
 
 const palette = Object.fromEntries(Object.entries({
-  grass: '#f4bacd', land: '#bb758f', bluff: '#e193a7', path: '#ffe0ce', rose: '#f78eb9',
+  grass: '#2F5D50', land: '#25384F', bluff: '#2F5D50', path: '#C9B48A', rose: '#f78eb9',
   blush: '#ffb2d3', pink: '#ffd2e4', peach: '#fac4b5', raspberry: '#b75684',
   cream: '#fff5df', ink: '#452948', dark: '#423457', plum: '#796385',
-  lilac: '#ab91c0', mint: '#93c6aa', moss: '#659d8a', ocean: '#a99dce',
+  lilac: '#ab91c0', mint: '#93c6aa', moss: '#659d8a', ocean: '#12384A',
   stone: '#ce98af', deepStone: '#a77899', shadow: '#764764',
-  gold: '#ffd477', amber: '#e58b68', ember: '#984c5e', violet: '#745e8f',
-  leaf: '#78bba8', white: '#fff8ef', light: '#fffcb8',
+  gold: '#F2C14E', amber: '#e58b68', ember: '#984c5e', violet: '#745e8f',
+  leaf: '#78bba8', white: '#F5F1E6', light: '#FFF6C2', moteHalo: '#FFE58A', litPaper: '#FFB347', litCore: '#FFE9B0', offPaper: '#5B5F6E', sky: '#0E1430', fog: '#1B2350', wood: '#6B4A2F', shade: '#120A1A', outline: '#7A3CFF', stunned: '#3A3450', coat: '#E8E2D0', scarf: '#C8102E', drifter: '#8FA3B8', danger: '#FF5A5F',
 }).map(([name, hex]) => {
   const rgb = [1, 3, 5].map((start) => parseInt(hex.slice(start, start + 2), 16) / 255);
   return [name, [...rgb, 1]];
@@ -71,6 +71,12 @@ export function createWorld(canvas) {
   const loop = renderer.register(ringGeometry(1,.94));
   const disk = renderer.register(ringGeometry(1,0));
   const diamond = renderer.register(cylinderGeometry(0, 1, 4));
+  const deck = renderer.register(slabGeometry());
+  const upperArc = renderer.register(ringGeometry(24,12,Math.PI));
+  const rampEast = renderer.register(rampGeometry(30,12,24,2,3,3));
+  const rampWest = renderer.register(rampGeometry(150,12,24,2,3,3));
+  const rampRiseEast = renderer.register(rampGeometry(30,24,30,1.5,0,3));
+  const rampRiseWest = renderer.register(rampGeometry(150,24,30,1.5,0,3));
   const p = palette;
 
   function ellipsoid(x, y, z, sx, sy, sz, color, details, shape = ball) {
@@ -125,33 +131,65 @@ export function createWorld(canvas) {
     }
   }
 
-  function landscape(radius, time) {
-    floor(disk, 0, -1.01, 0, 150, 150, p.ocean, { glow: .67, surface: 2 });
-    renderer.draw(bank, [0,-.28,0],[radius, 2.65, radius],p.land);
-    renderer.draw(bank, [0,0,0],[radius, .55, radius],p.bluff);
-    floor(top, 0, 0, 0, radius, radius, p.grass, { glow: .24, surface: 1 });
-    const shoreline = radius * 1.095;
-    floor(loop, 0,-.995,0,shoreline,shoreline,alpha(p.cream,.19),{glow:.9});
-    floor(loop, 0,-.987,0,shoreline+.76,shoreline+.76,alpha(p.cream,.13),{glow:.9});
-
+  function mist(time) {
+    floor(disk, 0, -1.01, 0, 150, 150, p.ocean, { glow: .96, surface: 2 });
     // Distant cloud banks and islets give the horizon depth while leaving the trail unobstructed.
     for (const [i, z] of [-55, -63, -45, -40, -56].entries()) {
       const x = (i-2)*20;
       const h = 2.2 + (i % 3)*1.2;
-      ellipsoid(x, -.9, z, 11+i%2, h, 8, i%2 ? p.lilac : p.stone, { glow:.4 }, bud);
-      ellipsoid(x-4, .45, z+2, 7, h*.58, 8, p.pink, { glow:.65 }, bud);
+      ellipsoid(x, -.9, z, 11+i%2, h, 8, i%2 ? p.fog : p.violet, { glow:.4 }, bud);
+      ellipsoid(x-4, .45, z+2, 7, h*.58, 8, p.fog, { glow:.65 }, bud);
     }
     for (const [x,y,z] of [[-21,7.4,-38], [12,8.3,-47], [29,6.8,-32],[-34,5.6,-21]]) {
       const drift = Math.sin(time*.12+x)*1.2;
-      ellipsoid(x+drift, y,z, 5.5,.62,1.04,alpha(p.white,.54),{glow:1},bud);
-      ellipsoid(x-2+drift,y+.55,z,2.3,.69,1.12,alpha(p.white,.42),{glow:1},bud);
-      ellipsoid(x+1+drift,y+.83,z,2.5,.99,1.38,alpha(p.white,.55),{glow:1},bud);
+      ellipsoid(x+drift, y,z, 5.5,.62,1.04,alpha(p.drifter,.22),{glow:1},bud);
+      ellipsoid(x-2+drift,y+.55,z,2.3,.69,1.12,alpha(p.drifter,.23),{glow:1},bud);
+      ellipsoid(x+1+drift,y+.83,z,2.5,.99,1.38,alpha(p.drifter,.29),{glow:1},bud);
     }
 
+  }
+
+  function diskIsland(radius, originX = 0) {
+    renderer.draw(bank, [originX,-.28,0],[radius, 2.65, radius],p.land);
+    renderer.draw(bank, [originX,0,0],[radius, .55, radius],p.bluff);
+    floor(disk, originX, 0, 0, radius, radius, p.grass, { glow: .35, surface: 1 });
+    floor(loop, originX,-.995,0,radius*1.035,radius*1.035,alpha(p.drifter,.24),{glow:.9});
+  }
+
+  function landscape(radius, time, night) {
+    mist(time);
+    diskIsland(night === 2 ? 28 : radius);
+    if (night === 2) {
+      diskIsland(28,70);
+      const bridge = { glow: .4 };
+      for (let i = 0; i < 22; i++) {
+        floor(deck,26+i*18/22,.036,0,.36,2,p.wood,bridge);
+      }
+      for (const x of [26,29,33,37,41,44]) {
+        cyl(x,.36,2,.11,.40,.11,p.wood,bridge,stand);
+        cyl(x,.36,-2,.11,.40,.11,p.wood,bridge,stand);
+      }
+      launchPad(20,0,18,time);
+      launchPad(50,0,-18,time);
+      for (const [x,z,scale] of scenery.trees) tree(70+x,z,scale,2);
+    }
+    if (night === 3) {
+      floor(upperArc,0,3.01,0,1,1,p.grass,{glow:.47,surface:1});
+      floor(upperArc,0,2.88,0,1.006,1.006,p.stone,{glow:.35});
+      for (const ramp of [rampEast,rampWest,rampRiseEast,rampRiseWest]) floor(ramp,0,.018,0,1,1,p.path,{glow:.37});
+      cyl(0,4.48,0,8,1.5,8,p.stone,{glow:.36});
+      floor(disk,0,6.01,0,8,8,p.grass,{glow:.55,surface:1});
+      cyl(0,7,0,2,1,2,p.wood,{glow:.41});
+      cyl(0,8.13,0,2.17,.14,2.17,p.wood,{glow:.42});
+      cyl(0,8.50,0,1.98,.19,1.98,p.scarf,{glow:.43},hat);
+      launchPad(0,3,13,time);
+      floor(loop,0,6.019,0,7.97,7.97,alpha(p.gold,.36),{glow:1});
+    }
     const pathStart = radius*.79;
     const pathEnd = -radius*.57;
     for (let point = 0; point < 27; point++) {
       const z = pathStart + (pathEnd-pathStart)*point/26;
+      if (night === 3 && z > 2 && z < 27) continue;
       const x = z < -2 ? Math.sin((-2-z)*.19)*1.4 : Math.sin(z*.28)*.22;
       floor(disk, x, .008+point*.00007, z, 1.3+Math.sin(point*.35)*.25,1.76,p.path,{ glow: .31, surface: 1 });
       ellipsoid(x + Math.sin(point*2.7)*1.48, .035, z+.12, .15, .054, .095, point%2 ? p.stone : p.cream, {yaw:point}, rock);
@@ -188,6 +226,14 @@ export function createWorld(canvas) {
     }
   }
 
+  function launchPad(x,y,z,time) {
+    const glow = .82 + .18*Math.sin(time*3.8);
+    cyl(x,y+.08,z,.9,.08,.9,p.wood,{glow:.52},stand);
+    floor(disk,x,y+.168,z,.82,.82,p.outline,{glow:.8});
+    floor(loop,x,y+.185,z,.94,.94,p.gold,{glow});
+    cyl(x,y+.22,z,.48,.065,.48,p.litPaper,{glow},stand);
+  }
+
   function shadow(x, z, width, depth, y = 0) {
     floor(disk, x,y+.023,z,width,depth,alpha(p.shadow,.25),{glow:1});
   }
@@ -196,9 +242,9 @@ export function createWorld(canvas) {
     const { x, lit } = item;
     const z = coordinate(item);
     const base = item.y ?? 0;
-    const metal = lit ? p.ember : p.violet;
-    const paper = lit ? p.gold : p.blush;
-    const halo = lit ? p.gold : p.pink;
+    const metal = p.wood;
+    const paper = lit ? p.litPaper : p.offPaper;
+    const halo = lit ? p.litPaper : p.drifter;
     const band = lit ? p.amber : p.raspberry;
     const pulse = .93 + .07*Math.sin(time*2.3);
     floor(disk,x,base+.021,z,1.34,1.34,alpha(halo,.36),{glow:1});
@@ -217,9 +263,9 @@ export function createWorld(canvas) {
     cyl(x,base+1.63,z,.52,.07,.52,metal,{},stand);
     cyl(x,base+1.77,z,.57,.13,.57,band,{},stand);
     cyl(x,base+1.92,z,.23,.11,.23,metal,{},stand);
-    ellipsoid(x,base+2.05,z,.115,.13,.115,lit ? p.light : p.pink,{glow:lit ? 1 : .31},bud);
+    ellipsoid(x,base+2.05,z,.115,.13,.115,lit ? p.litCore : p.offPaper,{glow:lit ? 1 : .31},bud);
     if (!lit) return;
-    ellipsoid(x,base+1.17,z,.69,.62,.69,alpha(p.gold,.18),{glow:1},bud);
+    ellipsoid(x,base+1.17,z,.69,.62,.69,alpha(p.litCore,.18),{glow:1},bud);
     for (let i = 0; i < 5; i++) {
       const orbit = time*.71 + i*radians/5;
       ellipsoid(x+Math.cos(orbit)*(.57+i*.09), base+.96+i*.35+Math.sin(orbit*2)*.17,z+Math.sin(orbit)*(.57+i*.09),
@@ -235,7 +281,7 @@ export function createWorld(canvas) {
     const h = Math.max(floorY+.31, item.y ?? .58) + Math.sin(phase)*.11;
     floor(loop,x,floorY+.023,z,.47,.47,alpha(p.cream,.87),{glow:1});
     ellipsoid(x,h,z,.13,.13,.13,p.light,{glow:1},bud);
-    ellipsoid(x,h,z,.24,.24,.24,alpha(p.gold,.27),{glow:1},bud);
+    ellipsoid(x,h,z,.24,.24,.24,alpha(p.moteHalo,.40),{glow:1},bud);
     ellipsoid(x-.12,h+.065,z,.12,.035,.085,alpha(p.white,.86),{yaw:phase,roll: .26*Math.sin(phase*9),glow:1},bud);
     ellipsoid(x+.12,h+.065,z,.12,.035,.085,alpha(p.white,.86),{yaw:phase,roll:-.26*Math.sin(phase*9),glow:1},bud);
     ellipsoid(x+.21*Math.cos(phase),h-.14,z+.21*Math.sin(phase),.035,.035,.035,p.cream,{glow:1},bud);
@@ -246,14 +292,17 @@ export function createWorld(canvas) {
     const z = coordinate(item);
     const base = item.y ?? 0;
     const y = base + Math.sin(time*3.7+index)*.105;
+    const stunned = item.state === 'stunned' || (item.stunnedTicks ?? item.stunned_ticks ?? item.stun ?? 0) > 0;
+    const color = stunned ? p.stunned : p.shade;
     shadow(x,z,.7,.52,base);
-    floor(loop,x,base+.022,z,.83,.83,alpha(p.violet,.49),{glow:1});
-    ellipsoid(x,.63+y,z,.58,.42,.49,p.dark,{glow:.12});
-    ellipsoid(x,.47+y,z,.51,.30,.42,p.ink);
-    ellipsoid(x-.30,1.03+y,z-.05,.17,.34,.145,p.dark,{roll:.33},bud);
-    ellipsoid(x+.30,1.03+y,z-.05,.17,.34,.145,p.dark,{roll:-.33},bud);
-    ellipsoid(x-.17,.74+y,z+.435,.08,.055,.035,p.light,{glow:1},bud);
-    ellipsoid(x+.17,.74+y,z+.435,.08,.055,.035,p.light,{glow:1},bud);
+    floor(loop,x,base+.022,z,.83,.83,alpha(p.outline,.72),{glow:1});
+    ellipsoid(x,.63+y,z,.60,.45,.52,p.outline,{glow:.95});
+    ellipsoid(x,.68+y,z+.027,.57,.40,.49,color,{glow:.55});
+    ellipsoid(x,.47+y,z+.04,.51,.30,.42,color);
+    ellipsoid(x-.30,1.03+y,z-.05,.17,.34,.145,color,{roll:.33},bud);
+    ellipsoid(x+.30,1.03+y,z-.05,.17,.34,.145,color,{roll:-.33},bud);
+    ellipsoid(x-.17,.74+y,z+.435,.08,.055,.035,stunned ? p.drifter : p.outline,{glow:1},bud);
+    ellipsoid(x+.17,.74+y,z+.435,.08,.055,.035,stunned ? p.drifter : p.outline,{glow:1},bud);
     for (let i = 0; i < 7; i++) {
       const wave = time*1.8 + i*radians/7;
       const distance = .57+(i%3)*.12;
@@ -270,7 +319,7 @@ export function createWorld(canvas) {
     travelTime += moved*8.9;
     const sway = .035 * Math.sin(time*3.6) + .067*stride*Math.abs(Math.sin(travelTime));
     const facing = lastPoint && moved > .001 ? Math.atan2(x-lastPoint.x,z-lastPoint.z) : lastPoint?.yaw;
-    const yaw = Number.isFinite(player.dir) ? player.dir : facing ?? (Math.PI+cameraYaw);
+    const yaw = Number.isFinite(player.dir) ? Math.PI - player.dir : facing ?? (Math.PI+cameraYaw);
     lastPoint = { x, z, yaw };
     const altitude = player.y ?? 0;
     const cs = Math.cos(yaw);
@@ -280,16 +329,16 @@ export function createWorld(canvas) {
     }
     shadow(x,z,.61,.49,player.groundY ?? 0);
     floor(loop,x,.031,z,.67,.67,alpha(p.white,.71),{glow:1});
-    part(0,.60,-.03,.37,.36,.25,p.rose,{glow:.09});
+    part(0,.60,-.03,.37,.36,.25,p.coat,{glow:.68});
     part(0,.52,.178,.23,.25,.10,p.cream);
     for (const side of [-1,1]) {
       const step = stride*.11*Math.sin(travelTime)*side;
       part(.17*side,.20+Math.max(0,step*.53),step,.14,.16,.15,p.raspberry,{glow:.06});
       part(.17*side,.15+Math.max(0,step*.53),.105+step,.15,.105,.19,p.plum);
-      part(.32*side,.59,-step,.108,.206,.119,p.blush,{roll: side*.21});
+      part(.32*side,.59,-step,.108,.206,.119,p.coat,{roll: side*.21,glow:.35});
       part(.35*side,.455,-step+.04,.079,.083,.099,p.peach);
     }
-    part(0,1.19,0,.48,.45,.39,p.rose,{glow:.12});
+    part(0,1.19,0,.48,.45,.39,p.coat,{glow:.62});
     part(0,1.17,.305,.357,.301,.166,p.cream,{glow:.28});
     part(0,1.40,.356,.292,.086,.125,p.raspberry,{roll:-.16,glow:.08});
     part(-.07,1.367,.435,.14,.064,.034,p.raspberry,{roll:-.4});
@@ -307,29 +356,56 @@ export function createWorld(canvas) {
     part(.39,.385,.10,.112,.13,.102,p.gold,{glow:1},bud);
     part(.39,.484,.10,.10,.040,.094,p.raspberry,{},stand);
     part(.39,.292,.10,.093,.034,.087,p.raspberry,{},stand);
-    part(0,.831,-.07,.34,.093,.29,p.raspberry,{glow:.08});
-    part(.125,.71,-.32,.115,.18,.15,p.blush,{roll:-.45});
+    part(0,.831,-.07,.34,.093,.29,p.scarf,{glow:.55});
+    part(.125,.71,-.32,.115,.18,.15,p.scarf,{roll:-.45,glow:.65});
     const ribbon = .07*Math.sin(time*4.8);
-    part(.22,.613+ribbon,-.46,.10,.15,.14,p.blush,{roll:-.5});
-    part(.03,.59-ribbon,-.43,.089,.15,.13,p.pink,{roll:.34});
+    part(.22,.613+ribbon,-.46,.10,.15,.14,p.scarf,{roll:-.5,glow:.65});
+    part(.03,.59-ribbon,-.43,.089,.15,.13,p.scarf,{roll:.34,glow:.65});
   }
 
-  function render(state, now = 0) {
+  function render(state, now = 0, options = {}) {
     const time = now/1000;
-    const radius = state.radius ?? state.world?.radius ?? 40;
+    const night = state.night ?? 1;
+    const radius = night === 2 ? 28 : night === 3 ? 45 : 40;
     if (radius !== mapRadius) {
       mapRadius = radius;
       scenery = environment(radius);
     }
     const player = state.player ?? { x:0, z:0 };
-    const yaw = state.viewYaw ?? Math.PI;
+    const yaw = state.viewYaw ?? (Math.PI + (state.cam_yaw_deg ?? state.camYaw ?? 0)*Math.PI/180);
     const x = player.x;
     const z = coordinate(player);
     const distance = state.cameraDistance ?? 8.9;
     const elevation = player.y ?? 0;
     const eye = [x+Math.sin(yaw)*distance, elevation+distance*.74, z+Math.cos(yaw)*distance];
     const target = [x-Math.sin(yaw)*3.75, elevation+1.02, z-Math.cos(yaw)*3.75];
-    landscape(radius,time);
+    landscape(radius,time,night);
+    for (const drift of state.drifters ?? []) {
+      if (drift.state === 'removed') continue;
+      const y = drift.y ?? -.2;
+      const z = coordinate(drift);
+      ellipsoid(drift.x,y,z,.32,.12,.49,alpha(p.drifter,.72),{glow:.83},bud);
+      ellipsoid(drift.x,y,z,.12,.095,.76,alpha(p.drifter,.26),{glow:.87},bud);
+    }
+    for (const charm of state.charms ?? []) {
+      if (charm.collected || charm.active === false || charm.available === false) continue;
+      const y = (charm.y ?? 0)+.44;
+      const z = coordinate(charm);
+      const yaw = time*1.8;
+      cyl(charm.x,y,z,.23,.26,.06,p.scarf,{yaw,glow:.76},stand);
+      ellipsoid(charm.x,y+.27,z,.12,.052,.08,p.gold,{yaw,glow:1},bud);
+      floor(loop,charm.x,y-.415,z,.52,.52,alpha(p.gold,.72),{glow:1});
+    }
+    if (state.wind?.active) {
+      const theta = (state.wind.dir_deg ?? 0)*Math.PI/180;
+      for (let i = 0; i < 28; i++) {
+        const flow = (i*2.73+time*11)%40-20;
+        const span = (i*7.39)%40-20;
+        ellipsoid(x+Math.sin(theta)*flow+Math.cos(theta)*span, .83+i%4*.88,
+          z+Math.cos(theta)*flow-Math.sin(theta)*span,.039,.039,.84,alpha(p.drifter,.47),
+          {yaw:theta,glow:1},bud);
+      }
+    }
 
     for (const lanternItem of state.lanterns ?? []) lantern(lanternItem,time);
     for (const [index,item] of (state.fireflies ?? []).entries()) {
@@ -346,8 +422,11 @@ export function createWorld(canvas) {
       const spread = .8 + pulseAge*.22;
       floor(loop,x,(player.groundY ?? 0)+.048,z,spread,spread,alpha(p.gold,.76*(1-pulseAge/24)),{glow:1});
     }
-    renderer.render(eye,target,time);
+    const lit = state.lanterns?.filter((item) => item.lit).length ?? 0;
+    const ambient = .15 + .55 * lit / Math.max(1,state.lanterns?.length ?? 0);
+    const style = { sky:p.sky.slice(0,3), horizon:p.fog.slice(0,3), sun:p.litCore.slice(0,3), fog:p.fog.slice(0,3), wave:p.drifter.slice(0,3), ambient };
+    renderer.render(options.camera?.eye ?? eye, options.camera?.target ?? target, time, style);
   }
 
-  return { render };
+  return { render, project: renderer.project };
 }

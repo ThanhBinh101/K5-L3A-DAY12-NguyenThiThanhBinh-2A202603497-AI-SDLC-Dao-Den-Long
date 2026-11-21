@@ -24,7 +24,12 @@ async function json(path) {
 }
 
 async function main() {
-  const { values } = parseArgs({ options });
+  const args = process.argv.slice(2);
+  const seedIndex = args.indexOf('--seed');
+  if (seedIndex >= 0 && /^-\d+$/.test(args[seedIndex + 1])) {
+    args.splice(seedIndex, 2, '--seed=' + args[seedIndex + 1]);
+  }
+  const { values } = parseArgs({ args, options });
   const seed = whole(values.seed, 'seed', Number.MIN_SAFE_INTEGER);
   const night = whole(values.night, 'night', 1, RULE_VERSION === 10 ? 1 : 3);
   const ticks = whole(values.ticks, 'ticks', 0);

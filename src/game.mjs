@@ -43,7 +43,8 @@ function choose(g, options) {
 
 function spawnMote(g) {
   const occupied = new Set(g.fireflies.map(mote => mote.spot));
-  const spots = g.map.motePoints.map((_, index) => index).filter(index => !occupied.has(index));
+  const spots = g.map.motePoints.map((_, index) => index).filter(index => !occupied.has(index) &&
+    !g.fireflies.some(mote => distance3(mote, g.map.motePoints[index]) < 1e-7));
   const spot = choose(g, spots);
   if (spot !== undefined) g.fireflies.push(makeMote(g, g.map.motePoints[spot], 'random', spot));
 }
@@ -139,7 +140,7 @@ function countdown(g) {
   if (RULE_VERSION < 12) return;
   for (const lamp of g.lanterns.filter(item => item.lit)) {
     const drains = g.enemies.filter(shade => shade.state === 'drain' && shade.target === lamp.id &&
-      lamp.fuelUnits < lowFuel && distance(shade, lamp) <= 2 && distance(shade, p) > 6);
+      lamp.fuelUnits < lowFuel && distance(shade, lamp) <= 2);
     lamp.fuelUnits -= 1 + drains.length * 5;
     const fuel = Math.max(0, Math.round(lamp.fuelUnits / 6) / 10);
     for (const shade of drains) {
@@ -570,7 +571,7 @@ export function snapshot(g) {
     player: {
       pos: xyz(p), flames: p.health, carried: p.fireflies,
       ...(v11 ? { vel: xyz({ x: p.vx, y: p.vy, z: p.vz }), grounded: p.grounded,
-        invuln: time(p.invuln), dash_cd_s: time(p.dashCd), pulse_cd_s: time(p.pulseCd), charm_s: time(p.charm) } : {}),
+        invuln: p.invuln > 0, dash_cd_s: time(p.dashCd), pulse_cd_s: time(p.pulseCd), charm_s: time(p.charm) } : {}),
       ...(v12 ? { capacity: capacity(g) } : {}),
     },
     lanterns: g.lanterns.map(lamp => ({
