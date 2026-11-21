@@ -1,6 +1,6 @@
 # Đảo Đèn Lồng
 
-**[Video demo MP4](docs/demo/demo.mp4)** · [Báo cáo](docs/BAO-CAO.md) · [Hướng dẫn tự làm](docs/HUONG-DAN.md) · [Release v1.0.0](https://github.com/ThanhBinh101/K5-L3A-DAY12-NguyenThiThanhBinh-2A202603497-AI-SDLC-Dao-Den-Long/releases/tag/v1.0.0)
+**[Video demo MP4](https://github.com/ThanhBinh101/K5-L3A-DAY12-NguyenThiThanhBinh-2A202603497-AI-SDLC-Dao-Den-Long/releases/download/v1.0.0/demo.mp4)** · [Báo cáo](docs/BAO-CAO.md) · [Hướng dẫn tự làm](docs/HUONG-DAN.md) · [Release v1.0.0](https://github.com/ThanhBinh101/K5-L3A-DAY12-NguyenThiThanhBinh-2A202603497-AI-SDLC-Dao-Den-Long/releases/tag/v1.0.0)
 
 Trong game 3D góc nhìn thứ ba của Day 12 AI SDLC, Mây đi qua Đảo Bến, Đảo Cau và Đảo Chuông để giữ đèn sáng đến bình minh.
 

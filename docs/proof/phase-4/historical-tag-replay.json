@@ -1,0 +1,33 @@
+[
+  {
+    "tag": "phase-1",
+    "commit": "751a374db5796875d442198963cc6ed92286b719",
+    "contract": "1.0",
+    "tests": "ℹ pass 8",
+    "matched_jsonl": [
+      "night-1.jsonl"
+    ]
+  },
+  {
+    "tag": "phase-2",
+    "commit": "eedb95dea48fad5f813e37dfb54d33e7e0e745de",
+    "contract": "1.1",
+    "tests": "ℹ pass 16",
+    "matched_jsonl": [
+      "night-1.jsonl",
+      "night-2.jsonl",
+      "night-3.jsonl"
+    ]
+  },
+  {
+    "tag": "phase-3",
+    "commit": "57498576ca546c2583d02bd4fbd6f849f74c84ba",
+    "contract": "1.2",
+    "tests": "ℹ pass 22",
+    "matched_jsonl": [
+      "night-1.jsonl",
+      "night-2.jsonl",
+      "night-3.jsonl"
+    ]
+  }
+]

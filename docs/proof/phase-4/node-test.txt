@@ -1,0 +1,31 @@
+✔ file-based headless emits deterministic JSONL with an end record (79.7165ms)
+✔ camera-relative movement persists and is independent of snapshot cadence (80.12825ms)
+✔ scenario pickup and partial deposit produce the required event payloads (38.486792ms)
+✔ the final lantern follows the versioned victory rule (75.65175ms)
+✔ malformed flags fail with contract exit code 2 (34.13675ms)
+✔ pause advances wall ticks while holding simulation counters steady (38.495583ms)
+✔ Night 2 launch pad launches a grounded player toward the other island (38.082625ms)
+✔ Night 3 enabled wind activates repeatably and disabling it isolates motion (133.30825ms)
+✔ on hit only half the carried motes drop and immunity prevents immediate damage (37.744708ms)
+✔ published night layouts and v1.1 snapshot fields are present (113.169625ms)
+✔ fuel exhaustion preserves history and a five-mote relight grows capacity (36.736583ms)
+✔ a shade drains a weak lantern and emits one event per elapsed second (38.968417ms)
+✔ dawn uses the lit threshold and no-flames takes priority (111.128375ms)
+✔ fuel and capacity appear in v1.2; Night 1 starts with a four-minute budget (38.170666ms)
+✔ jump starts from ground and lands again (2.336709ms)
+✔ pulse costs three motes, pushes four metres over 15 ticks and does not repeat on hold (1.080667ms)
+✔ enemy contact costs one flame, drops half and starts invulnerability (0.199041ms)
+✔ dash travels 2.8m over 12 ticks and holding the button never retriggers (0.481459ms)
+✔ fall ignores invulnerability and respawn restores canonical start after 60 ticks (0.375ms)
+✔ a wind charm refreshes the timer and a drifter steals without taking a flame (0.331125ms)
+✔ lantern expires at zero and relights for five, growing carrying capacity (0.33475ms)
+✔ shade drain plus decay consumes one extra five per second and awards stun bonus (0.381792ms)
+✔ leaderboard qualifies names, sorts score and ties, keeps 10, persists, and exports contract wrapper (24.701791ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 948.9895

@@ -1,0 +1,74 @@
+{
+  "entries": [
+    {
+      "name": "Demo_00",
+      "score": 95,
+      "nights_won": 2,
+      "achieved_at": "2026-11-21T03:00:12.000Z",
+      "seed": 42
+    },
+    {
+      "name": "Demo_11",
+      "score": 60,
+      "nights_won": 2,
+      "achieved_at": "2026-11-21T03:00:01.000Z",
+      "seed": 42
+    },
+    {
+      "name": "Demo_10",
+      "score": 60,
+      "nights_won": 2,
+      "achieved_at": "2026-11-21T03:00:02.000Z",
+      "seed": 42
+    },
+    {
+      "name": "Demo_09",
+      "score": 60,
+      "nights_won": 2,
+      "achieved_at": "2026-11-21T03:00:03.000Z",
+      "seed": 42
+    },
+    {
+      "name": "Demo_08",
+      "score": 60,
+      "nights_won": 2,
+      "achieved_at": "2026-11-21T03:00:04.000Z",
+      "seed": 42
+    },
+    {
+      "name": "Demo_07",
+      "score": 60,
+      "nights_won": 2,
+      "achieved_at": "2026-11-21T03:00:05.000Z",
+      "seed": 42
+    },
+    {
+      "name": "Demo_06",
+      "score": 60,
+      "nights_won": 2,
+      "achieved_at": "2026-11-21T03:00:06.000Z",
+      "seed": 42
+    },
+    {
+      "name": "Demo_05",
+      "score": 60,
+      "nights_won": 2,
+      "achieved_at": "2026-11-21T03:00:07.000Z",
+      "seed": 42
+    },
+    {
+      "name": "Demo_04",
+      "score": 60,
+      "nights_won": 2,
+      "achieved_at": "2026-11-21T03:00:08.000Z",
+      "seed": 42
+    },
+    {
+      "name": "Demo_03",
+      "score": 60,
+      "nights_won": 2,
+      "achieved_at": "2026-11-21T03:00:09.000Z",
+      "seed": 42
+    }
+  ]
+}

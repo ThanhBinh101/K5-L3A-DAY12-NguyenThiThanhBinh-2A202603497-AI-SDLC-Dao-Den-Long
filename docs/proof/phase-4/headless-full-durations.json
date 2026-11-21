@@ -1,0 +1,35 @@
+[
+  {
+    "night": 1,
+    "ticks": 14400,
+    "wall_seconds": 1.049,
+    "state": "lost",
+    "scenario": {
+      "random_shades": false,
+      "random_drifters": false,
+      "wind_enabled": false
+    }
+  },
+  {
+    "night": 2,
+    "ticks": 16200,
+    "wall_seconds": 0.145,
+    "state": "lost",
+    "scenario": {
+      "random_shades": false,
+      "random_drifters": false,
+      "wind_enabled": false
+    }
+  },
+  {
+    "night": 3,
+    "ticks": 18000,
+    "wall_seconds": 0.284,
+    "state": "lost",
+    "scenario": {
+      "random_shades": false,
+      "random_drifters": false,
+      "wind_enabled": false
+    }
+  }
+]

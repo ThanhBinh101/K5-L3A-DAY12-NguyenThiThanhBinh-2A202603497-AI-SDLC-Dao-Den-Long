@@ -24,11 +24,11 @@ function playwrightPackage() {
   }
 }
 
-function captureCommand(command, args) {
+function captureCommand(command, args, environment = {}) {
   const result = spawnSync(command, args, {
     cwd: root,
     encoding: "utf8",
-    env: { ...process.env, FORCE_COLOR: "0", NO_COLOR: "1" },
+    env: { ...process.env, FORCE_COLOR: "0", NO_COLOR: "1", ...environment },
     maxBuffer: 4 * 1024 * 1024,
   });
   if (result.error) throw result.error;
@@ -88,15 +88,14 @@ async function gameTick(page) {
 }
 
 async function advanceTicks(page, count) {
-  const start = await gameTick(page);
-  const target = start + count;
+  let current = await gameTick(page);
+  const target = current + count;
   for (let tries = 0; tries < count * 2 + 8; tries++) {
-    const current = await gameTick(page);
     if (current === target) return;
     // The virtual animation clock fires every 16ms, shorter than one game tick.
     await page.clock.runFor((target - current) * 16);
-    const next = await gameTick(page);
-    if (next > target) throw new Error(`Game skipped past tick ${target} to ${next}.`);
+    current = await gameTick(page);
+    if (current > target) throw new Error(`Game skipped past tick ${target} to ${current}.`);
   }
   throw new Error(`Game failed to reach tick ${target}.`);
 }
@@ -105,23 +104,23 @@ async function playScene(page, scene, recorder) {
   await caption(page, scene.caption);
   await recorder.frame();
   for (const action of scene.actions) {
-    if (action.click) {
-      const button = page.getByRole("button", { name: action.click, exact: true });
-      if (!await button.isEnabled()) throw new Error(`Button ${action.click} is disabled.`);
+    if (action.clickSelector) {
+      const button = page.locator(action.clickSelector);
+      if (!await button.isEnabled()) throw new Error(`Button ${action.clickSelector} is disabled.`);
       await button.click({ force: true });
       await recorder.frame();
     }
     if (action.press) {
       await page.keyboard.press(action.press);
-      await advanceTicks(page, 1);
+      if (!action.withoutTicks) await advanceTicks(page, 1);
       recorder.hold(1000 / 60);
       await recorder.frame();
     }
     if (action.hold) {
       for (const key of action.hold) await page.keyboard.down(key);
       try {
-        for (let remaining = action.ticks; remaining > 0; remaining -= 2) {
-          const ticks = Math.min(2, remaining);
+        for (let remaining = action.ticks; remaining > 0; remaining -= 4) {
+          const ticks = Math.min(4, remaining);
           await advanceTicks(page, ticks);
           recorder.hold(ticks * (1000 / 60));
           await recorder.frame();
@@ -207,13 +206,18 @@ async function main() {
   const routePath = routeArg ? path.resolve(routeArg) : path.join(root, "tools", "record-demo-route.json");
   const output = outputArg ? path.resolve(outputArg) : path.join(root, "docs", "demo", "demo.mp4");
   const route = JSON.parse(readFileSync(routePath, "utf8"));
-  const verification = captureCommand("npm", ["run", "verify"]);
   const harness = readFileSync(path.join(root, "AGENTS.md"), "utf8").trim();
+  const proof = process.env.DEMO_BENCH_JSON
+    ? JSON.parse(readFileSync(path.resolve(process.env.DEMO_BENCH_JSON), "utf8"))
+    : null;
   const temp = mkdtempSync(path.join(tmpdir(), "dao-den-long-demo-"));
   let server;
   let browser;
 
   try {
+    const verification = captureCommand("npm", ["run", "verify"], {
+      DAY12_PROOF_DIR: path.join(temp, "verify"),
+    });
     const executablePath = process.env.DEMO_CHROME
       || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
     const { chromium } = playwrightPackage();
@@ -255,19 +259,30 @@ async function main() {
     }
     await evidenceCard(page, {
       label: "Đảo Đèn Lồng · Kiểm chứng cục bộ",
-      heading: verification.status === 0 ? "Bộ kiểm chứng bản thử đã đạt" : "Bộ kiểm chứng báo lỗi",
+      heading: verification.status === 0 ? "Bộ kiểm chứng cục bộ đã đạt" : "Bộ kiểm chứng báo lỗi",
       command: "$ npm run verify",
       output: shellLines(verification.output, 17),
       footer: `Mã thoát: ${verification.status}. Kết quả lấy trực tiếp từ lệnh chạy trước khi quay.`,
     });
     await recorder.frame();
     recorder.hold(7_500);
+    if (proof) {
+      await evidenceCard(page, {
+        label: "Đảo Đèn Lồng · Hiệu năng",
+        heading: "Đo hiệu năng trong Chrome · 1280 × 720",
+        command: "$ node tools/bench.mjs --seed 42 --duration 30 --out bench.json",
+        output: JSON.stringify(proof, null, 2),
+        footer: "Kết quả đọc từ tệp đo trên máy quay sau 3 giây khởi động.",
+      });
+      await recorder.frame();
+      recorder.hold(7_500);
+    }
     await evidenceCard(page, {
       label: "Đảo Đèn Lồng · AI SDLC",
       heading: "Hướng dẫn kiểm chứng cho agent",
       command: "$ cat AGENTS.md",
       output: harness,
-      footer: "Xem báo cáo để đối chiếu phạm vi đã kiểm tra và các yêu cầu còn thiếu nguồn.",
+      footer: "Xem báo cáo để đối chiếu yêu cầu qua bốn phase và kiểm tra lại từ mã nguồn.",
     });
     await recorder.frame();
     recorder.hold(6_500);

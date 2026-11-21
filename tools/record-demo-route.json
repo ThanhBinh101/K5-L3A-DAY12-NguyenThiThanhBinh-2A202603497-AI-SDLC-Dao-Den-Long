@@ -1,53 +1,265 @@
 {
   "scenes": [
     {
-      "caption": "Đảo Đèn Lồng · Game 3D góc nhìn thứ ba",
-      "actions": [{ "wait": 3800 }, { "click": "Bắt đầu chơi" }, { "wait": 800 }]
+      "caption": "Đảo Đèn Lồng · Hành trình qua ba đêm",
+      "actions": [
+        {
+          "wait": 3000
+        },
+        {
+          "clickSelector": "#start"
+        },
+        {
+          "visible": "Vào đảo →"
+        },
+        {
+          "wait": 2900
+        },
+        {
+          "clickSelector": "#start"
+        },
+        {
+          "wait": 600
+        }
+      ]
     },
     {
-      "caption": "Giữ W để đưa Mây tới đom đóm. Gom 3 con rồi nhấn E cạnh đèn.",
+      "caption": "Đêm 1 · Dùng WASD để gom đom đóm dọc lối đi",
+      "actions": [
+        {
+          "hold": [
+            "w",
+            "a"
+          ],
+          "ticks": 111
+        },
+        {
+          "hold": [
+            "s",
+            "a"
+          ],
+          "ticks": 58
+        },
+        {
+          "hold": [
+            "s"
+          ],
+          "ticks": 29
+        },
+        {
+          "hold": [
+            "s",
+            "d"
+          ],
+          "ticks": 49
+        },
+        {
+          "hold": [
+            "s"
+          ],
+          "ticks": 49
+        }
+      ]
+    },
+    {
+      "caption": "Nhấn Q, dùng 3 đom đóm để tạo Xung Sáng",
+      "actions": [
+        {
+          "press": "q"
+        },
+        {
+          "visible": "0 / 10"
+        },
+        {
+          "wait": 1500
+        }
+      ]
+    },
+    {
+      "caption": "Gom 10 đom đóm để nạp Đèn Lồng Lớn lần đầu",
+      "actions": [
+        {
+          "hold": [
+            "s",
+            "d"
+          ],
+          "ticks": 63
+        },
+        {
+          "hold": [
+            "d"
+          ],
+          "ticks": 32
+        },
+        {
+          "hold": [
+            "w",
+            "d"
+          ],
+          "ticks": 169
+        },
+        {
+          "hold": [
+            "w",
+            "a"
+          ],
+          "ticks": 37
+        },
+        {
+          "hold": [
+            "w"
+          ],
+          "ticks": 50
+        },
+        {
+          "hold": [
+            "w",
+            "a"
+          ],
+          "ticks": 62
+        },
+        {
+          "hold": [
+            "a"
+          ],
+          "ticks": 32
+        },
+        {
+          "hold": [
+            "s",
+            "a"
+          ],
+          "ticks": 49
+        },
+        {
+          "hold": [
+            "a"
+          ],
+          "ticks": 51
+        },
+        {
+          "hold": [
+            "w",
+            "a"
+          ],
+          "ticks": 209
+        },
+        {
+          "hold": [
+            "w",
+            "d"
+          ],
+          "ticks": 101
+        },
+        {
+          "hold": [
+            "d"
+          ],
+          "ticks": 18
+        },
+        {
+          "hold": [
+            "w",
+            "d"
+          ],
+          "ticks": 36
+        },
+        {
+          "hold": [
+            "d"
+          ],
+          "ticks": 101
+        },
+        {
+          "hold": [
+            "s",
+            "a"
+          ],
+          "ticks": 35
+        },
+        {
+          "hold": [
+            "a"
+          ],
+          "ticks": 84
+        },
+        {
+          "hold": [
+            "d"
+          ],
+          "ticks": 235
+        }
+      ]
+    },
+    {
+      "caption": "Đến gần đèn, nhấn E để nạp. Đèn sáng sẽ dần tiêu hao nhiên liệu.",
       "poster": true,
       "actions": [
-        { "hold": ["w"], "ticks": 85 },
-        { "wait": 1300 },
-        { "press": "e" },
-        { "visible": "1 / 3" },
-        { "wait": 2700 }
+        {
+          "hold": [
+            "s",
+            "a"
+          ],
+          "ticks": 77
+        },
+        {
+          "hold": [
+            "a"
+          ],
+          "ticks": 45
+        },
+        {
+          "press": "e"
+        },
+        {
+          "visible": "1 / 5"
+        },
+        {
+          "check": {
+            "selector": "#health",
+            "attribute": "aria-label",
+            "equals": "3 trên 3 Lửa Tim"
+          }
+        },
+        {
+          "wait": 2800
+        }
       ]
     },
     {
-      "caption": "Theo đường đom đóm tới Vườn Mây. Thắp chiếc đèn thứ hai.",
+      "caption": "Nhấn P để tạm dừng. Có thể tiếp tục hoặc đổi cài đặt.",
       "actions": [
-        { "hold": ["a", "w"], "ticks": 19 },
-        { "hold": ["w"], "ticks": 12 },
-        { "hold": ["a", "w"], "ticks": 27 },
-        { "hold": ["w"], "ticks": 2 },
-        { "hold": ["a", "w"], "ticks": 24 },
-        { "hold": ["w"], "ticks": 5 },
-        { "hold": ["a", "w"], "ticks": 13 },
-        { "hold": ["w"], "ticks": 11 },
-        { "wait": 1300 },
-        { "press": "e" },
-        { "visible": "2 / 3" },
-        { "wait": 2800 }
+        {
+          "press": "p",
+          "withoutTicks": true
+        },
+        {
+          "visible": "Tạm dừng"
+        },
+        {
+          "wait": 3200
+        }
       ]
     },
     {
-      "caption": "Đi chéo sang Đồi Trăng, giữ khoảng cách với Bóng Mực.",
+      "caption": "Cài đặt · Chữ lớn, độ nhạy chuột và phím tùy chỉnh",
       "actions": [
-        { "hold": ["d", "w"], "ticks": 109 },
-        { "hold": ["d"], "ticks": 12 },
-        { "wait": 1250 },
-        { "press": "e" },
-        { "visible": "3 / 3" },
-        { "visible": "Đảo đã sáng!" },
-        { "check": { "selector": "#health", "attribute": "aria-label", "equals": "3 trên 3 tim" } },
-        { "wait": 3700 }
+        {
+          "clickSelector": "#settings"
+        },
+        {
+          "visible": "Chữ lớn (125%)"
+        },
+        {
+          "wait": 1600
+        },
+        {
+          "clickSelector": "#largeText"
+        },
+        {
+          "wait": 2700
+        }
       ]
-    },
-    {
-      "caption": "Cả ba đèn đã sáng. Mây vẫn còn đủ 3 tim.",
-      "actions": [{ "wait": 3000 }]
     }
   ]
 }

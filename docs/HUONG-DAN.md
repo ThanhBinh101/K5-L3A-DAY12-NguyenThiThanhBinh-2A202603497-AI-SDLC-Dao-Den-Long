@@ -25,7 +25,7 @@ Mở địa chỉ máy chủ in ra, mặc định [127.0.0.1:4173](http://127.0.
 | Dùng xung làm choáng Bóng Mực | Q |
 | Tạm dừng | Esc hoặc P |
 
-Nhấn **Bắt đầu chơi**, đọc tên đêm và vào đảo. Đi tới một cụm đom đóm rồi bấm **E** gần Đèn Lồng Lớn. Có thể góp nhiều lượt. Giữ khoảng cách với Bóng Mực, dùng xung nếu đủ đom đóm. Từ Phase 3, quay lại những đèn đang yếu để thêm nhiên liệu và tạm dừng để xem hướng dẫn. Khi thắng, tiếp tục sang đêm kế. Mở cài đặt hoặc bảng điểm từ màn hình chính ở bản cuối.
+Nhấn **Bắt đầu chơi**, đọc tên đêm và vào đảo. Đi tới một cụm đom đóm rồi bấm **E** gần Đèn Lồng Lớn. Có thể góp nhiều lượt. Giữ khoảng cách với Bóng Mực, dùng xung nếu đủ đom đóm. Từ Phase 3, quay lại những đèn đang yếu để thêm nhiên liệu và tạm dừng để xem hướng dẫn. Khi thắng, tiếp tục sang đêm kế. Mở cài đặt để chỉnh độ nhạy camera, cỡ chữ, phụ đề hoặc gán lại phím. Có thể mở bảng điểm từ màn hình chính ở bản cuối.
 
 ## Làm theo từng phase
 
@@ -86,12 +86,12 @@ npm test
 
 ```bash
 node tools/bench.mjs --seed 42 --duration 30 --out bench.json
-node tools/soak.mjs --seed 7 --nights 10 --out soak.json
+npm run soak -- --seed 7 --nights 10 --out soak.json
 node tools/serve.mjs --export-leaderboard leaderboard.json
 npm run package
 ```
 
-Giải nén bản đóng gói vào thư mục sạch. Chạy theo tệp hướng dẫn đi cùng gói. Đối chiếu benchmark với AVG FPS ≥ 60, p1 low ≥ 30 và thời gian tải ≤ 10 giây. Đối chiếu soak với số lần crash bằng 0 và tăng RSS ≤ 20%. Nếu máy chạy chậm hoặc một ngưỡng chưa đạt, giữ đầu ra đo và báo rõ mục đó. [Yêu cầu Phase 4](YEU-CAU.md#phase-4--phát-hành-và-số-đo)
+Giải nén `dist/dao-den-long-v1.0.0.tar.gz` vào thư mục sạch. Chạy theo tệp hướng dẫn đi cùng gói. Đối chiếu benchmark với AVG FPS ≥ 60, p1 low ≥ 30 và thời gian tải ≤ 10 giây. Đối chiếu soak với số lần crash bằng 0 và tăng RSS ≤ 20%. Lệnh soak dùng Node với `--jitless --max-semi-space-size=1` như khai báo trong contract. Nếu máy chạy chậm hoặc một ngưỡng chưa đạt, giữ đầu ra đo và báo rõ mục đó. [Yêu cầu Phase 4](YEU-CAU.md#phase-4--phát-hành-và-số-đo)
 
 Video MP4 dưới 5 phút. Chiếu một lượt chơi thật, cho thấy điều kiện thắng hoặc thua theo bản hiện tại, rồi mở test, số đo và lịch sử Git. Trên macOS dùng `Cmd + Shift + 5` để quay một vùng. Nếu cần chuyển định dạng, dùng FFmpeg.
 
