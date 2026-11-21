@@ -1,0 +1,80 @@
+:root {
+  color-scheme: light;
+  font-family: ui-rounded, "Avenir Next", "Trebuchet MS", system-ui, sans-serif;
+  color: #432843;
+  background: #fff8fc;
+  --ink: #432843;
+  --muted: #735772;
+  --berry: #a84175;
+  --paper: #fff9fc;
+  --line: #efdce8;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, a:focus-visible { outline: 3px solid #784977; outline-offset: 4px; }
+[hidden] { display: none !important; }
+.masthead, main { width: min(1440px, calc(100% - 88px)); margin-inline: auto; }
+.masthead { display: flex; align-items: center; justify-content: space-between; min-height: 76px; gap: 12px; }
+.brand { color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 13px; font-size: 1.1rem; font-weight: 750; }
+.brand-mark { width: 36px; height: 36px; display: grid; place-items: center; background: #fbe1ee; border-radius: 12px; }
+.brand-mark i, .motif i { display: block; width: 15px; height: 16px; background: #ed8cb0; border: 1px solid #b85584; border-radius: 45%; position: relative; box-shadow: inset 0 0 0 3px #f6a6c2; }
+.brand-mark i::before, .brand-mark i::after, .motif i::before, .motif i::after { content: ""; position: absolute; width: 57%; height: 2px; background: #a35079; left: 21.5%; border-radius: 3px; }
+.brand-mark i::before, .motif i::before { top: -2px; }
+.brand-mark i::after, .motif i::after { bottom: -2px; }
+.utility { background: #fff1f8; border: 1px solid var(--line); border-radius: 20px; padding: 8px 14px; font-weight: 650; font-size: .82rem; color: #74496a; }
+.utility:hover { background: #fbe3f0; }
+.game { height: clamp(465px, calc(100svh - 150px), 900px); position: relative; overflow: hidden; isolation: isolate; border-radius: 25px; background: linear-gradient(#e8c6ea, #fce2eb 55%, #a69fc8); border: 1px solid #eccee1; box-shadow: 0 13px 36px #6c3c5e12; }
+#world { width: 100%; height: 100%; display: block; }
+.hud { position: absolute; inset: 20px 24px; pointer-events: none; }
+.meters { display: flex; align-items: stretch; gap: 10px; }
+.stat { min-width: 107px; border: 1px solid #fff5fb; display: grid; gap: 2px; padding: 9px 13px; border-radius: 12px; background: #fff9f4ed; box-shadow: 0 4px 20px #65425a18; }
+.stat-label { color: #745776; font-size: .71rem; font-weight: 750; }
+.stat strong { font-size: 1.06rem; font-variant-numeric: tabular-nums; }
+.hearts { color: #b4477c; display: flex; gap: .18em; white-space: nowrap; }
+.hearts .empty { color: #bc9bac; }
+.light-dot { display: inline-block; width: .62em; height: .62em; border-radius: 100%; background: #f3ba50; box-shadow: 0 0 8px #ffc862; }
+.hint { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: max-content; max-width: 100%; text-align: center; margin: 0; padding: 11px 19px; font-weight: 700; font-size: .88rem; border: 1px solid #fff5fb; border-radius: 50px; background: #fff9f5ee; box-shadow: 0 4px 20px #65425a18; }
+.overlay { position: absolute; inset: 0; display: grid; align-items: center; justify-items: start; padding: clamp(24px, 6.5vw, 100px); background: linear-gradient(90deg, #5d375a37, #a0659320 50%, transparent 80%); }
+.intro { width: min(385px, 100%); border: 1px solid #ffffffdb; background: linear-gradient(150deg, #fff9f9f7, #fce5f2f5); box-shadow: 0 20px 45px #603a6933; border-radius: 22px; padding: clamp(23px, 4vw, 40px); }
+.motif { display: flex; gap: 10px; align-items: center; color: #b35283; height: 41px; margin-bottom: 15px; }
+.motif i { width: 32px; height: 33px; box-shadow: inset 0 0 0 6px #f6a6c2; }
+.motif span:first-child { font-size: .9rem; margin-top: 14px; }
+.motif span:last-child { font-size: 1.5rem; align-self: flex-start; }
+h1 { margin: 0; font-size: clamp(2.55rem, 5vw, 4.03rem); font-weight: 800; letter-spacing: -.072em; line-height: .98; text-wrap: balance; }
+.intro p { color: #684865; font-size: 1rem; line-height: 1.55; margin: 20px 0 23px; max-width: 28ch; }
+.action { display: inline-flex; gap: 23px; align-items: center; background: #a13e73; border: 1px solid #a13e73; border-radius: 13px; color: white; padding: 13px 17px; font-weight: 750; box-shadow: 0 4px 0 #84315e; }
+.action:hover { background: #8e3464; }
+.action:active { transform: translateY(2px); box-shadow: 0 2px 0 #84315e; }
+.controls { color: #725873; min-height: 61px; display: flex; align-items: center; justify-content: center; gap: 28px; font-size: .83rem; font-weight: 650; }
+.controls span { display: flex; align-items: center; gap: 4px; }
+.controls small { color: #806783; font-size: .75rem; padding-inline: 3px; }
+kbd { border: 1px solid #ead6e5; box-shadow: 0 2px 0 #ead6e5; min-width: 24px; text-align: center; padding: 2px 3px; border-radius: 5px; background: white; color: #664261; }
+.controls kbd:last-of-type { margin-right: 4px; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.touch-controls { display: none; }
+@media (pointer: coarse) {
+  .touch-controls { display: flex; position: absolute; bottom: 52px; left: 15px; right: 15px; justify-content: space-between; align-items: end; pointer-events: none; }
+  .touch-controls button { pointer-events: auto; touch-action: none; background: #fff9f5ed; border: 1px solid #ebcede; border-radius: 10px; min-height: 42px; color: #6f3d62; font-weight: 750; }
+  .directions { display: grid; grid-template-columns: repeat(3, 44px); gap: 4px; }
+  .north { grid-column: 2; }
+  .west { grid-column: 1; grid-row: 2; }
+  .touch-light { padding: 8px 10px; }
+}
+@media (max-width: 700px) {
+  .masthead, main { width: calc(100% - 24px); }
+  .masthead { min-height: 62px; }
+  .game { height: clamp(465px, calc(100svh - 123px), 760px); border-radius: 19px; }
+  .overlay { justify-items: center; align-items: end; padding: 19px; }
+  .intro { width: min(100%, 355px); }
+  .motif { height: 32px; margin-bottom: 13px; }
+  .hud { inset: 12px; }
+  .meters { gap: 5px; }
+  .stat { min-width: 0; padding: 6px 8px; }
+  .stat strong { font-size: .93rem; }
+  .hint { font-size: .78rem; padding: 8px 11px; }
+  .controls { min-height: 53px; gap: 11px; font-size: .72rem; }
+  .controls small { display: none; }
+  kbd { min-width: 17px; }
+}

@@ -1,0 +1,9 @@
+{
+  "layout": {
+    "player": { "x": 0, "z": 0 },
+    "fireflies": [],
+    "lanterns": [{ "x": 8, "z": 0 }],
+    "enemies": [{ "id": "nearby", "x": 0, "z": 0 }]
+  },
+  "steps": [{ "ticks": 360 }]
+}

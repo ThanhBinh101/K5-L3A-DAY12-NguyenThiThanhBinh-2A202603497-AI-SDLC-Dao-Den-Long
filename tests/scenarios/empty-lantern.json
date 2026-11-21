@@ -1,0 +1,9 @@
+{
+  "layout": {
+    "player": { "x": 0, "z": 0, "fireflies": 1 },
+    "fireflies": [],
+    "lanterns": [{ "id": "rose", "x": 0, "z": 0, "cost": 2 }],
+    "enemies": []
+  },
+  "steps": [{ "keys": ["light"], "ticks": 1 }]
+}

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff8fc">
+  <meta name="description" content="Theo chân Mây, gom đom đóm và thắp sáng Đảo Đèn Lồng.">
+  <title>Đảo Đèn Lồng</title>
+  <link rel="stylesheet" href="./web/style.css">
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="./" aria-label="Đảo Đèn Lồng, trang bắt đầu">
+      <span class="brand-mark" aria-hidden="true"><i></i></span>
+      <span>Đảo Đèn Lồng</span>
+    </a>
+    <button class="utility" id="mute" type="button" aria-pressed="false">Âm thanh: Tắt</button>
+  </header>
+  <main>
+    <section class="game" aria-label="Game Đảo Đèn Lồng">
+      <canvas id="world" aria-label="Thế giới 3D góc nhìn thứ ba của Mây"></canvas>
+      <div class="hud" id="hud" hidden>
+        <div class="meters">
+          <div class="stat">
+            <span class="stat-label">Sức khỏe</span>
+            <strong id="health" class="hearts" aria-label="3 trên 3 tim">♥ ♥ ♥</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Đom đóm</span>
+            <strong><span class="light-dot" aria-hidden="true"></span> <span id="fireflies">0</span></strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Đèn đã thắp</span>
+            <strong id="lanterns">0 / 3</strong>
+          </div>
+        </div>
+        <p class="hint" id="hint">Gom đom đóm dọc đường đến chiếc đèn đầu tiên.</p>
+      </div>
+      <div class="overlay" id="overlay">
+        <div class="intro">
+          <div class="motif" aria-hidden="true"><span>✦</span><i></i><span>✧</span></div>
+          <h1 id="panel-title">Đảo Đèn Lồng</h1>
+          <p id="panel-text">Cùng Mây gom đom đóm, né Bóng Mực và thắp sáng cả hòn đảo.</p>
+          <button class="action" type="button" id="start">Bắt đầu chơi <span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+      <div class="touch-controls" id="touch-controls" hidden>
+        <div class="directions" role="group" aria-label="Di chuyển">
+          <button type="button" data-move="up" class="north" aria-label="Đi tới">↑</button>
+          <button type="button" data-move="left" class="west" aria-label="Đi trái">←</button>
+          <button type="button" data-move="down" class="south" aria-label="Đi lùi">↓</button>
+          <button type="button" data-move="right" class="east" aria-label="Đi phải">→</button>
+        </div>
+        <button type="button" class="touch-light" id="touch-light">Thắp đèn</button>
+      </div>
+      <p class="sr-only" id="announcement" role="status"></p>
+    </section>
+    <footer class="controls" aria-label="Điều khiển">
+      <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> <small>hoặc phím mũi tên</small> Di chuyển</span>
+      <span><kbd>E</kbd> Thắp đèn</span>
+      <span><kbd>R</kbd> Chơi lại</span>
+    </footer>
+  </main>
+  <script type="module" src="./web/game-ui.mjs"></script>
+</body>
+</html>
