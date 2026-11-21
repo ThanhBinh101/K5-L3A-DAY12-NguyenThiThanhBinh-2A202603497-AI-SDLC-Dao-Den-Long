@@ -1,0 +1,12 @@
+Clean local clone: 9f6a29b7f4f26a5e9a927a4579314c2d5fc73dbf
+ℹ tests 12
+ℹ pass 12
+ℹ fail 0
+island: won · 322 ticks · 3 lit · 0 hits · replay identical
+contact: lost · 241 ticks · 0 lit · 3 hits · replay identical
+empty-lantern: playing · 1 ticks · 0 lit · 0 hits · replay identical
+Matches original proof byte for byte: island.json
+Matches original proof byte for byte: contact.json
+Matches original proof byte for byte: empty-lantern.json
+Matches original proof byte for byte: run.json
+Deliberate failed test in temporary clone: git commit exit 1; HEAD unchanged.

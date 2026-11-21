@@ -1,0 +1,1 @@
+{"ticks":241,"mode":"lost","player":{"x":0,"z":0,"health":0,"fireflies":0},"collected":[],"lit":[],"hits":3,"events":[{"tick":1,"kind":"hit","id":"nearby"},{"tick":121,"kind":"hit","id":"nearby"},{"tick":241,"kind":"hit","id":"nearby"},{"tick":241,"kind":"lost","id":"nearby"}]}

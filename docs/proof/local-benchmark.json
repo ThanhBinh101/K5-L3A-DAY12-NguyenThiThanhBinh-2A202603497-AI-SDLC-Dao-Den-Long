@@ -1,0 +1,11 @@
+{
+  "workload": "default-island winning route, includes setup and snapshot, excludes file I/O",
+  "node": "v23.11.0",
+  "platform": "darwin",
+  "arch": "arm64",
+  "cpu": "Apple M2",
+  "iterations": 5000,
+  "simulatedTicks": 1610000,
+  "totalMs": 488.19,
+  "ticksPerSecond": 3297875
+}

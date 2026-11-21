@@ -1,0 +1,53 @@
+{
+  "scenes": [
+    {
+      "caption": "Đảo Đèn Lồng · Game 3D góc nhìn thứ ba",
+      "actions": [{ "wait": 3800 }, { "click": "Bắt đầu chơi" }, { "wait": 800 }]
+    },
+    {
+      "caption": "Giữ W để đưa Mây tới đom đóm. Gom 3 con rồi nhấn E cạnh đèn.",
+      "poster": true,
+      "actions": [
+        { "hold": ["w"], "ticks": 85 },
+        { "wait": 1300 },
+        { "press": "e" },
+        { "visible": "1 / 3" },
+        { "wait": 2700 }
+      ]
+    },
+    {
+      "caption": "Theo đường đom đóm tới Vườn Mây. Thắp chiếc đèn thứ hai.",
+      "actions": [
+        { "hold": ["a", "w"], "ticks": 19 },
+        { "hold": ["w"], "ticks": 12 },
+        { "hold": ["a", "w"], "ticks": 27 },
+        { "hold": ["w"], "ticks": 2 },
+        { "hold": ["a", "w"], "ticks": 24 },
+        { "hold": ["w"], "ticks": 5 },
+        { "hold": ["a", "w"], "ticks": 13 },
+        { "hold": ["w"], "ticks": 11 },
+        { "wait": 1300 },
+        { "press": "e" },
+        { "visible": "2 / 3" },
+        { "wait": 2800 }
+      ]
+    },
+    {
+      "caption": "Đi chéo sang Đồi Trăng, giữ khoảng cách với Bóng Mực.",
+      "actions": [
+        { "hold": ["d", "w"], "ticks": 109 },
+        { "hold": ["d"], "ticks": 12 },
+        { "wait": 1250 },
+        { "press": "e" },
+        { "visible": "3 / 3" },
+        { "visible": "Đảo đã sáng!" },
+        { "check": { "selector": "#health", "attribute": "aria-label", "equals": "3 trên 3 tim" } },
+        { "wait": 3700 }
+      ]
+    },
+    {
+      "caption": "Cả ba đèn đã sáng. Mây vẫn còn đủ 3 tim.",
+      "actions": [{ "wait": 3000 }]
+    }
+  ]
+}

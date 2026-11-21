@@ -1,0 +1,34 @@
+{
+  "node": "v23.11.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "osRelease": "25.5.0",
+  "cpu": "Apple M2",
+  "sourceAndTestsSha256": "80eb53227d00337dcebe5a43bfcb7cb59f36319d061e11ab046322e2836916db",
+  "results": [
+    {
+      "scenario": "island",
+      "repeatedIdentically": true,
+      "mode": "won",
+      "ticks": 322,
+      "lit": 3,
+      "hits": 0
+    },
+    {
+      "scenario": "contact",
+      "repeatedIdentically": true,
+      "mode": "lost",
+      "ticks": 241,
+      "lit": 0,
+      "hits": 3
+    },
+    {
+      "scenario": "empty-lantern",
+      "repeatedIdentically": true,
+      "mode": "playing",
+      "ticks": 1,
+      "lit": 0,
+      "hits": 0
+    }
+  ]
+}

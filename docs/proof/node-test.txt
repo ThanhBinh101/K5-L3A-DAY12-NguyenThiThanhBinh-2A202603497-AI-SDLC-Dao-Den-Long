@@ -1,0 +1,20 @@
+✔ cardinal and diagonal movement both travel at the configured speed (0.747541ms)
+✔ movement stops on the shoreline (0.253083ms)
+✔ walking over a firefly twice collects it only once (0.434666ms)
+✔ interaction outside the reach leaves the lantern and inventory intact (0.171708ms)
+✔ lighting spends its cost once and only the final lantern wins (0.171458ms)
+✔ enemy contact respects invulnerability and ends the game when health is depleted (0.140417ms)
+✔ new games reset state and invalid positions are rejected (0.384792ms)
+✔ default board can be beaten with nine fireflies, all lanterns lit and no contact (36.711208ms)
+✔ same input produces byte-identical JSON through file and stdin (65.103042ms)
+✔ stationary enemy contact loses on the third hit at repeatable ticks (30.662584ms)
+✔ insufficient fireflies leaves the lantern unlit and preserves inventory (30.722042ms)
+✔ invalid scenario returns a nonzero exit and no stdout (32.457ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 244.9185
